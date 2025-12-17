@@ -57,7 +57,7 @@
                     <td>
                         <form method="POST" action="{{ route('marks.remove_student', $index) }}">
                             @csrf
-                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 {{ $index == 0 ? 'disabled' : '' }}">Delete</button>
                         </form>
                     </td>
                 </tr>
