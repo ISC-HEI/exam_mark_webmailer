@@ -1,15 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container my-5">
-    <h2 class="mb-4 text-center">Marks Mail Sender</h2>
+<div class="container-fluid p-4 bg-light min-vh-100">
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Marks Mail Sender</h2>
+            <p class="text-muted small mb-0">Manage exams and notify students efficiently.</p>
+        </div>
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-0 py-2" role="alert">
+                <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
+            </div>
+        @endif
+    </div>
 
     @if ($errors->any())
-        <div class="alert alert-danger">
+        <div class="alert alert-danger shadow-sm border-0 mb-4">
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -18,114 +25,155 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('marks.send') }}">
+    <form id="send-marks-form" method="POST" action="{{ route('marks.send') }}">
         @csrf
-
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Course Name</label>
-                <input type="text" name="course_name" class="form-control" value="{{ old('course_name') }}" required placeholder="Enter course name">
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Exam Name</label>
-                <input type="text" name="exam_name" class="form-control" value="{{ old('exam_name') }}" required placeholder="Enter exam name">
-            </div>
-        </div>
-
-        <h4 class="mt-3">Students</h4>
-        <table class="table table-striped table-bordered align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mark</th>
-                    <th style="width: 120px;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($students as $index => $student)
-                <tr>
-                    <td>
-                        <input type="text" name="students[{{ $index }}][name]" class="form-control" value="{{ $student['name'] }}" placeholder="Student name">
-                    </td>
-                    <td>
-                        <input type="email" name="students[{{ $index }}][email]" class="form-control" value="{{ $student['email'] }}" placeholder="Student email">
-                    </td>
-                    <td>
-                        <input type="number" step="0.1" min="1" max="6" name="students[{{ $index }}][mark]" class="form-control" value="{{ $student['mark'] }}">
-                    </td>
-                    <td>
-                        <form method="POST" action="{{ route('marks.remove_student', $index) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 {{ $index == 0 ? 'disabled' : '' }}">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <div class="mb-4">
-            <form method="POST" action="{{ route('marks.add_student') }}">
-                @csrf
-                <button type="submit" class="btn btn-secondary">+ Add Student</button>
-            </form>
-        </div>
-
-        <div class="mb-4">
-            <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data">
-                @csrf
-                <label class="form-label">
-                    Load students from CSV
-                    <span class="d-inline-flex justify-content-center align-items-center 
-                            border border-dark rounded-circle 
-                            text-center fw-bold"
-                    style="width:20px; height:20px; cursor:pointer;"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="CSV format must be : student_name;email;mark">
-                    ?
-                </span>
-                </label>
-                <div class="input-group">
-                    <input type="file" name="csv_file" accept=".csv" class="form-control" required>
-                    <button type="submit" class="btn btn-secondary">Load CSV</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="mb-4">
-            <label class="form-label">
-                Message 
-                <span class="d-inline-flex justify-content-center align-items-center 
-                            border border-dark rounded-circle 
-                            text-center fw-bold"
-                    style="width:20px; height:20px; cursor:pointer;"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="Use variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK]">
-                    ?
-                </span>
-            </label>
-            <textarea name="message" class="form-control" rows="5">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : [STUDENT_MARK]\n\nEn cas de question merci de contacter <your.email@domain.ch>")) }}</textarea>
-            <form method="POST" action="{{ route('marks.reset_message') }}">
-                @csrf
-                <button type="submit" class="btn btn-outline-secondary btn-sm mt-2">Reset Message</button>
-            </form>
-        </div>
-
-        <div>
-            <button type="submit" class="w-100 btn btn-primary btn-lg btn-block">Send marks</button>
-        </div>
     </form>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-4 col-xl-3">
+            <div class="card bg-dark text-white border-0 shadow h-100">
+                <div class="card-header bg-transparent border-secondary border-opacity-50 pt-4 pb-0">
+                    <h5 class="card-title fw-bold"><i class="bi bi-sliders me-2"></i>Configuration</h5>
+                </div>
+                
+                <div class="card-body d-flex flex-column gap-3">
+                    
+                    <div>
+                        <label class="form-label text-secondary small fw-bold text-uppercase">Informations</label>
+                        <div class="mb-2">
+                            <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}" required placeholder="Course name">
+                        </div>
+                        <div>
+                            <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}" required placeholder="Exam name">
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary opacity-50 my-1">
+
+                    <div class="flex-grow-1 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-secondary small fw-bold text-uppercase mb-0">Message Email</label>
+                            
+                            <form method="POST" action="{{ route('marks.reset_message') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-link btn-sm text-secondary text-decoration-none p-0" title="Réinitialiser">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : [STUDENT_MARK]\n\nEn cas de question merci de contacter <your.email@domain.ch>")) }}</textarea>
+                        
+                        <div class="mt-2 text-white-50 small fst-italic">
+                            <i class="bi bi-info-circle me-1"></i> Variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK]
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                    <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-3 fw-bold shadow">
+                        <i class="bi bi-send-fill me-2"></i> Send marks
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2"></i>Students :</h5>
+                    
+                    <div class="d-flex gap-2">
+                        <form method="POST" action="{{ route('marks.add_student') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-light border">
+                                <i class="bi bi-plus-lg text-success"></i> Add student
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center bg-light border rounded px-2">
+                            @csrf
+                            <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0 bg-transparent">
+                            <button type="submit" class="btn btn-sm btn-link text-decoration-none fw-bold text-dark">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-uppercase small text-muted">
+                                <th class="ps-4 py-3">Name</th>
+                                <th class="py-3">Email</th>
+                                <th class="py-3">Mark</th>
+                                <th class="text-end pe-4 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($students as $index => $student)
+                            <tr>
+                                <td class="ps-4">
+                                    <input type="text" form="send-marks-form" name="students[{{ $index }}][name]" class="form-control border-0 bg-transparent fw-bold" value="{{ $student['name'] }}" placeholder="Nom">
+                                </td>
+                                <td>
+                                    <input type="email" form="send-marks-form" name="students[{{ $index }}][email]" class="form-control border-0 bg-transparent text-muted" value="{{ $student['email'] }}" placeholder="Email">
+                                </td>
+                                <td style="width: 120px;">
+                                    <input type="number" id="inputMark" form="send-marks-form" step="0.1" min="1" max="6" name="students[{{ $index }}][mark]" 
+                                           class="form-control text-center fw-bold mark-input border-0" 
+                                            value="{{ $student['mark'] }}">
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form method="POST" action="{{ route('marks.remove_student', $index) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-danger btn-sm border-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                            
+                            @if(count($students) === 0)
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    No students in the list. Add them manually or import a CSV.
+                                </td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
-
-@section('scripts')
+@section("script")
 <script>
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    const inputMarks = document.querySelectorAll("#inputMark")
+
+    const updateMarkInputColor = (input) => {
+        const mark = parseFloat(input.value);
+        
+        const successClasses = ['text-success', 'bg-success-subtle'];
+        const failureClasses = ['text-danger', 'bg-danger-subtle'];
+        input.classList.remove(...successClasses, ...failureClasses);
+        
+        if (!isNaN(mark) && mark >= 4.0) {
+            input.classList.add(...successClasses);
+        } else if (!isNaN(mark) && mark < 4.0) {
+            input.classList.add(...failureClasses);
+        }
+    }
+
+    inputMarks.forEach(inp => {
+        updateMarkInputColor(inp)
+
+        inp.addEventListener("input", () => {updateMarkInputColor(inp)})
+    });
 </script>
 @endsection

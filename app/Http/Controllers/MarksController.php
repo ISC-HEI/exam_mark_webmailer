@@ -11,9 +11,7 @@ class MarksController extends Controller
 {
     public function showForm(Request $request)
     {
-        $students = old('students', $request->session()->get('students', [
-            ['name' => '', 'email' => '', 'mark' => ''],
-        ]));
+        $students = old('students', $request->session()->get('students', []));
 
         return view('marks.form', compact('students'));
     }
