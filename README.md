@@ -31,14 +31,15 @@ Clone the git directory
 git clone https://github.com/ISC-HEI/exam_mark_webmailer.git
 cd exam_mark_webmailer
 ```
-Install the dependencies
-```bash
-composer install
-```
 Copy .env.example to .env and configure your environment variables:
 ```bash
 cp .env.example .env
 php artisan key:generate
+```
+Create the docker image and start
+```docker
+docker build -t exam-mark-webmailer:1 .
+docker run -p 8000:8000 exam-mark-webmailer:1
 ```
 
 ### Configuration
