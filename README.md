@@ -34,8 +34,10 @@ cd exam_mark_webmailer
 Copy .env.example to .env and configure your environment variables:
 ```bash
 cp .env.example .env
-php artisan key:generate
+# php artisan key:generate
 ```
+> You can run `php artisan key:generate` if you want to add some functions. If you just want to use the program as is, a key is provided in the `.env.example` file.
+
 Create the docker image and start
 ```docker
 docker build -t exam-mark-webmailer:1 .
