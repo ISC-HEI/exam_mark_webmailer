@@ -1,14 +1,48 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- Email sender check -->
+<div class="modal fade" id="confirmSendModal" tabindex="-1" aria-labelledby="confirmSendModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="confirmSendModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>Send confirmation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3">You are going to send marks for :</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Course :</span> <strong id="summary-course">-</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Exam :</span> <strong id="summary-exam">-</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Students number :</span> <span class="badge bg-primary rounded-pill" id="summary-count">0</span>
+                    </li>
+                </ul>
+                <div class="alert alert-warning small mb-0">
+                    <i class="bi bi-info-circle me-1"></i> This action will send an email to each students.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="final-confirm-send" class="btn btn-primary px-4">Confirm the sending</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Spinner -->
 <div id="loading-overlay" class="d-none position-fixed top-0 start-0 w-100 h-100 justify-content-center align-items-center" style="background: rgba(255,255,255,0.7); z-index: 9999;">
     <div class="text-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
         <p class="mt-2 fw-bold text-primary">Sending emails in progress...</p>
     </div>
 </div>
-<div class="container-fluid p-4 bg-light min-vh-100">
 
+<div class="container-fluid p-4 bg-light min-vh-100">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-dark mb-0">Marks Mail Sender</h2>
@@ -50,10 +84,10 @@
                     <div>
                         <label class="form-label text-secondary small fw-bold text-uppercase">Informations</label>
                         <div class="mb-2">
-                            <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}"  placeholder="Course name">
+                            <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}" required placeholder="Course name">
                         </div>
                         <div>
-                            <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}"  placeholder="Exam name">
+                            <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}" required placeholder="Exam name">
                         </div>
                     </div>
 
@@ -235,11 +269,9 @@
 
     if (sendMarksBtn) {
         sendMarksBtn.addEventListener('click', () => {
-            loadingOverlay.classList.remove("d-none");
-            loadingOverlay.classList.add("d-flex")
             
             formActionInput.value = 'send';
-            sendMarksForm.action = '{{ route('marks.send') }}';
+            sendMarksForm.action = '{{ route('marks.checkValidity') }}';
         });
     }
 
@@ -247,10 +279,97 @@
     // Send email shortcut
     // --------------------
     document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        const sendBtn = document.querySelector('button[form="send-marks-form"]');
-        if (sendBtn) sendBtn.click();
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            const sendBtn = document.querySelector('button[form="send-marks-form"]');
+            if (sendBtn) sendBtn.click();
+        }
+    });
+
+    // --------------------
+    // Confirm modal and Backend Check
+    // --------------------
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
+    const finalConfirmBtn = document.getElementById('final-confirm-send');
+
+    if (sendMarksBtn) {
+        sendMarksBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const errorContainer = document.querySelector('.alert-danger');
+            if (errorContainer) errorContainer.remove();
+
+            if (!sendMarksForm.checkValidity()) {
+                sendMarksForm.reportValidity();
+                return;
+            }
+
+            const originalContent = sendMarksBtn.innerHTML;
+            sendMarksBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+            sendMarksBtn.disabled = true;
+
+            try {
+                const formData = new FormData(sendMarksForm);
+                const response = await fetch('{{ route('marks.checkValidity') }}', {
+                    method: 'POST',
+                    headers: {
+                        accept: "Application/json"
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('summary-course').innerText = document.querySelector('input[name="course_name"]').value;
+                    document.getElementById('summary-exam').innerText = document.querySelector('input[name="exam_name"]').value;
+                    document.getElementById('summary-count').innerText = document.querySelectorAll('.btn-remove-student').length;
+
+                    confirmModal.show();
+                } else {
+                    displayErrors(result.errors);
+                }
+            } catch (error) {
+                console.error('Erreur lors du check:', error);
+                alert('Une erreur est survenue lors de la vérification des données.');
+            } finally {
+                sendMarksBtn.innerHTML = originalContent;
+                sendMarksBtn.disabled = false;
+            }
+        });
     }
+
+    function displayErrors(errors) {
+        let errorHtml = '<div class="alert alert-danger shadow-sm border-0 mb-4"><ul class="mb-0">';
+        Object.values(errors).forEach(errArray => {
+            errArray.forEach(message => {
+                errorHtml += `<li>${message}</li>`;
+            });
+        });
+        errorHtml += '</ul></div>';
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertAdjacentHTML('afterbegin', errorHtml);
+        window.scrollTo(0, 0);
+    }
+
+    finalConfirmBtn.addEventListener('click', () => {
+        confirmModal.hide();
+        loadingOverlay.classList.remove("d-none");
+        loadingOverlay.classList.add("d-flex");
+
+        sendMarksBtn.classList.add('disabled');
+        
+        formActionInput.value = 'send';
+        sendMarksForm.action = '{{ route('marks.send') }}';
+        sendMarksForm.submit();
+    });
+
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (confirmModal) {
+            confirmModal.hide();
+        }
+    });
 });
 </script>
 @endsection

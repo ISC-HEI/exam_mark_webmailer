@@ -6,6 +6,7 @@ use App\Http\Controllers\MarksController;
 Route::get("/", [MarksController::class, 'showForm'])->name('marks.form');
 
 Route::get('/marks', [MarksController::class, 'showForm'])->name('marks.form');
+Route::post('/marks/check-validity', [MarksController::class, 'checkValidity'])->name('marks.checkValidity');
 Route::post('/marks/send', [MarksController::class, 'sendMarks'])->name('marks.send');
 
 Route::post('/marks/add-student', [MarksController::class, 'addStudent'])->name('marks.add_student');

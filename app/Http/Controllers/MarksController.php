@@ -117,4 +117,8 @@ class MarksController extends Controller
 
         return redirect()->route('marks.form')->withInput();
     }
+
+    public function checkValidity(MarksRequest $request) {
+        return response()->json(['valid' => true]);
+    }
 }
