@@ -324,7 +324,29 @@
                     document.getElementById('summary-exam').innerText = document.querySelector('input[name="exam_name"]').value;
                     document.getElementById('summary-count').innerText = document.querySelectorAll('.btn-remove-student').length;
 
+                    let timeLeft = 5;
+                    const originalText = "Confirm the sending";
+                    
+                    finalConfirmBtn.disabled = true;
+                    finalConfirmBtn.innerText = `${originalText} (${timeLeft}s)`;
+
                     confirmModal.show();
+
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        if (timeLeft > 0) {
+                            finalConfirmBtn.innerText = `${originalText} (${timeLeft}s)`;
+                        } else {
+                            clearInterval(timer);
+                            finalConfirmBtn.disabled = false;
+                            finalConfirmBtn.innerText = originalText;
+                            finalConfirmBtn.focus();
+                        }
+                    }, 1000);
+
+                    document.getElementById('confirmSendModal').addEventListener('hidden.bs.modal', () => {
+                        clearInterval(timer);
+                    }, { once: true });
                 } else {
                     displayErrors(result.errors);
                 }
@@ -365,11 +387,11 @@
     });
 
     document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (confirmModal) {
-            confirmModal.hide();
-        }
+        btn.addEventListener('click', () => {
+            if (confirmModal) {
+                confirmModal.hide();
+            }
+        });
     });
-});
 </script>
 @endsection
