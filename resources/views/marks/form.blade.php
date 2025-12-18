@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+<div id="loading-overlay" class="d-none position-fixed top-0 start-0 w-100 h-100 justify-content-center align-items-center" style="background: rgba(255,255,255,0.7); z-index: 9999;">
+    <div class="text-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <p class="mt-2 fw-bold text-primary">Sending emails in progress...</p>
+    </div>
+</div>
 <div class="container-fluid p-4 bg-light min-vh-100">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -181,6 +187,8 @@
     const removeIndexInput = document.getElementById('remove-index-input');
     const removeButtons = document.querySelectorAll('.btn-remove-student');
 
+    const loadingOverlay = document.getElementById("loading-overlay")
+
     const sendMarksForm = document.getElementById('send-marks-form');
     const formActionInput = document.getElementById('form-action-input');
     
@@ -213,6 +221,9 @@
 
     if (sendMarksBtn) {
         sendMarksBtn.addEventListener('click', () => {
+            loadingOverlay.classList.remove("d-none");
+            loadingOverlay.classList.add("d-flex")
+            
             formActionInput.value = 'send';
             sendMarksForm.action = '{{ route('marks.send') }}';
         });
