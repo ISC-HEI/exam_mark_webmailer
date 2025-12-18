@@ -86,8 +86,11 @@
                         <div class="mb-2">
                             <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}" required placeholder="Course name">
                         </div>
-                        <div>
+                        <div class="mb-2">
                             <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}" required placeholder="Exam name">
+                        </div>
+                        <div>
+                            <input type="email" form="send-marks-form" name="teacher_email" class="form-control bg-secondary text-white border-0" value="{{ old('teacher_email') }}" required placeholder="Your email">
                         </div>
                     </div>
 
@@ -105,15 +108,18 @@
                             </form>
                         </div>
                         
-                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter <your.email@domain.ch>")) }}</textarea>
+                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>
                         
                         <div class="mt-2 text-white-50 small fst-italic">
-                            <i class="bi bi-info-circle me-1"></i> Variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK], [CLASS_AVERAGE]
+                            <i class="bi bi-info-circle me-1"></i> Variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK], [CLASS_AVERAGE], [MY_EMAIL]
                         </div>
                     </div>
                 </div>
 
                 <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                    <button type="button" id="send-test-email" class="btn btn-outline-light w-100 mb-2 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-envelope-check me-2"></i> Send a test email
+                    </button>
                     <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-3 fw-bold shadow">
                         <i class="bi bi-send-fill me-2"></i> Send marks
                         <div class="ms-2 d-none d-md-block" style="opacity: 0.8">
@@ -393,5 +399,16 @@
             }
         });
     });
+
+    // ---------------
+    // Send test email
+    // ---------------
+    const sendTestEmail = document.getElementById("send-test-email")
+
+    sendTestEmail.addEventListener("click", () => {
+        formActionInput.value = 'send';
+        sendMarksForm.action = '{{ route('marks.send_test') }}';
+        sendMarksForm.submit();
+    })
 </script>
 @endsection

@@ -26,7 +26,7 @@ class MarksController extends Controller
 
         $request->session()->put('students', $updatedStudents);
 
-        $request->flashOnly(['course_name', 'exam_name', 'message']);
+        $request->flashOnly(['course_name', 'exam_name', 'teacher_email', 'message']);
 
         return redirect()->route('marks.form');
     }
@@ -44,7 +44,7 @@ class MarksController extends Controller
         }
 
         $request->session()->put('students', $updatedStudents);
-        $request->flashOnly(['course_name', 'exam_name', 'message']);
+        $request->flashOnly(['course_name', 'exam_name', 'teacher_email' ,'message']);
 
         return redirect()->route('marks.form');
     }
@@ -93,8 +93,8 @@ class MarksController extends Controller
                 }
 
                 $message = str_replace(
-                    ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]'],
-                    [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students)],
+                    ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
+                    [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students), $request->teacher_email],
                     $request->message
                 );
 
@@ -113,13 +113,48 @@ class MarksController extends Controller
     {
         $students = $request->session()->get('students', []);
 
-        $request->session()->flash('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter <your.email@domain.ch>");
+        $request->session()->flash('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]");
 
         return redirect()->route('marks.form')->withInput();
     }
 
     public function checkValidity(MarksRequest $request) {
         return response()->json(['valid' => true]);
+    }
+
+    public function sendTestEmail(MarksRequest $request) {
+
+            $student = $request->students[0];
+
+            if (!empty($student['name']) && !empty($student['email'])) {
+
+            $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
+            $missingVariables = [];
+
+            foreach ($requiredVariables as $var) {
+                if (strpos($request->message, $var) === false) {
+                    $missingVariables[] = $var;
+                }
+            }
+
+            if (!empty($missingVariables)) {
+                return back()->withErrors([
+                    'message' => 'Le message doit contenir les variables suivantes : ' . implode(', ', $missingVariables)
+                ])->withInput();
+            }
+
+            $message = str_replace(
+                ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
+                [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students), $request->teacher_email],
+                $request->message
+            );
+
+            Mail::to($request->teacher_email)->send(
+                new StudentMarkMail($request->course_name, $message)
+            );
+        }
+
+        return redirect()->route('marks.form')->withInput();
     }
 
     public function getClassAverage($students) {
