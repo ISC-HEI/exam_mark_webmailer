@@ -93,8 +93,8 @@ class MarksController extends Controller
                 }
 
                 $message = str_replace(
-                    ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'],
-                    [$student['name'], $request->course_name, $request->exam_name, $student['mark']],
+                    ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]'],
+                    [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students)],
                     $request->message
                 );
 
@@ -120,5 +120,20 @@ class MarksController extends Controller
 
     public function checkValidity(MarksRequest $request) {
         return response()->json(['valid' => true]);
+    }
+
+    public function getClassAverage($students) {
+        $marks = array_filter(array_column($students, 'mark'), function($value) {
+            return $value !== null && $value !== '';
+        });
+
+        if (count($marks) === 0) {
+            return 0;
+        }
+
+        $total = array_sum($marks);
+        $average = $total / count($marks);
+
+        return round($average, 2);
     }
 }
