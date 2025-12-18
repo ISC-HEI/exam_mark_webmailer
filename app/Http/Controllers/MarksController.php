@@ -18,24 +18,33 @@ class MarksController extends Controller
 
     public function addStudent(Request $request)
     {
-        $students = $request->session()->get('students', []);
-        $students[] = ['name' => '', 'email' => '', 'mark' => ''];
+        $existingStudents = $request->input('students', []); 
+        
+        $newStudent = ['name' => '', 'email' => '', 'mark' => ''];
 
-        $request->session()->put('students', $students);
+        $updatedStudents = array_merge($existingStudents, [$newStudent]);
+
+        $request->session()->put('students', $updatedStudents);
+
+        $request->flashOnly(['course_name', 'exam_name', 'message']);
 
         return redirect()->route('marks.form');
     }
 
-    public function removeStudent(Request $request, $index)
+    public function removeStudent(Request $request)
     {
-        $students = $request->session()->get('students', []);
-        if(isset($students[$index])) {
-            unset($students[$index]);
-            
-            $students = array_values($students);
+        $existingStudents = $request->input('students', []); 
+        $indexToRemove = $request->input('remove_index');
+
+        if (isset($existingStudents[$indexToRemove])) {
+            unset($existingStudents[$indexToRemove]);
+            $updatedStudents = array_values($existingStudents); 
+        } else {
+            $updatedStudents = $existingStudents;
         }
 
-        $request->session()->put('students', $students);
+        $request->session()->put('students', $updatedStudents);
+        $request->flashOnly(['course_name', 'exam_name', 'message']);
 
         return redirect()->route('marks.form');
     }

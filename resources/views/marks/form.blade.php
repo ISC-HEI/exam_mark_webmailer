@@ -27,6 +27,8 @@
 
     <form id="send-marks-form" method="POST" action="{{ route('marks.send') }}">
         @csrf
+        <input type="hidden" name="action" id="form-action-input" value="send">
+        <input type="hidden" name="remove_index" id="remove-index-input" value="">
     </form>
 
     <div class="row g-4">
@@ -85,13 +87,9 @@
                     <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2"></i>Students :</h5>
                     
                     <div class="d-flex gap-2">
-                        <form method="POST" action="{{ route('marks.add_student') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-light border">
-                                <i class="bi bi-plus-lg text-success"></i> Add student
-                            </button>
-                        </form>
-
+                        <button type="button" id="add-student-btn" class="btn btn-light border">
+                            <i class="bi bi-plus-lg text-success"></i> Add student
+                        </button>
                         <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center bg-light border rounded px-2">
                             @csrf
                             <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0 bg-transparent">
@@ -127,12 +125,9 @@
                                             value="{{ $student['mark'] }}">
                                 </td>
                                 <td class="text-end pe-4">
-                                    <form method="POST" action="{{ route('marks.remove_student', $index) }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-danger btn-sm border-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                                 </td>
                             </tr>
                             @endforeach
@@ -154,6 +149,9 @@
 @endsection
 @section("script")
 <script>
+    // --------------------
+    // Update Marks input
+    // --------------------
     const inputMarks = document.querySelectorAll("#inputMark")
 
     const updateMarkInputColor = (input) => {
@@ -175,5 +173,50 @@
 
         inp.addEventListener("input", () => {updateMarkInputColor(inp)})
     });
+    
+    // --------------------
+    // Add and Remove student
+    // --------------------
+    const addStudentBtn = document.getElementById('add-student-btn');
+    const removeIndexInput = document.getElementById('remove-index-input');
+    const removeButtons = document.querySelectorAll('.btn-remove-student');
+
+    const sendMarksForm = document.getElementById('send-marks-form');
+    const formActionInput = document.getElementById('form-action-input');
+    
+    if (addStudentBtn) {
+        addStudentBtn.addEventListener('click', () => {
+            formActionInput.value = 'add_student';
+            
+            sendMarksForm.action = '{{ route('marks.add_student') }}';
+            
+            sendMarksForm.submit();
+        });
+    }
+
+
+    console.log(removeButtons)
+    removeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            
+            formActionInput.value = 'remove_student';
+            
+            removeIndexInput.value = index;
+
+            sendMarksForm.action = '{{ route('marks.remove_student') }}';
+
+            sendMarksForm.submit();
+        });
+    });
+
+    const sendMarksBtn = document.querySelector('button[form="send-marks-form"]');
+
+    if (sendMarksBtn) {
+        sendMarksBtn.addEventListener('click', () => {
+            formActionInput.value = 'send';
+            sendMarksForm.action = '{{ route('marks.send') }}';
+        });
+    }
 </script>
 @endsection
