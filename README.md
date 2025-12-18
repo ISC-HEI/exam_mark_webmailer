@@ -6,6 +6,9 @@
 ![Last Commit](https://img.shields.io/github/last-commit/ISC-HEI/exam_mark_webmailer)
 ![License Apache](https://img.shields.io/badge/License-Apache-red)
 ![Made with expo](https://img.shields.io/badge/made_with-Laravel-white?logo=laravel)
+![Numbers of issues](https://img.shields.io/github/issues/ISC-HEI/exam_mark_webmailer)
+![Release version](https://img.shields.io/github/v/release/ISC-HEI/exam_mark_webmailer)
+![Release date](https://img.shields.io/github/release-date/ISC-HEI/exam_mark_webmailer)
 
 **Exam Mark Mailer** is a simple and user-friendly web interface for sending exam marks to students via email. It allows teachers to enter marks manually or import them from CSV, and send personalized emails to each student.
 </div>
