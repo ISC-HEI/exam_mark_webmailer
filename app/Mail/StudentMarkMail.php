@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class StudentMarkMail extends Mailable
 {
@@ -22,7 +23,7 @@ class StudentMarkMail extends Mailable
     public function __construct($courseName, $messageContent)
     {
         $this->courseName = $courseName;
-        $this->messageContent = $messageContent;
+        $this->messageContent = Str::markdown($messageContent);
     }
 
     /**
@@ -41,11 +42,7 @@ class StudentMarkMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.studentMark',
-            with: [
-                'courseName' => $this->courseName,
-                'messageContent' => $this->messageContent,
-            ],
+            view: 'emails.studentMark'
         );
     }
 

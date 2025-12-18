@@ -113,7 +113,7 @@ class MarksController extends Controller
     {
         $students = $request->session()->get('students', []);
 
-        $request->session()->flash('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : [STUDENT_MARK]\n\nEn cas de question merci de contacter <your.email@domain.ch>");
+        $request->session()->flash('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter <your.email@domain.ch>");
 
         return redirect()->route('marks.form')->withInput();
     }

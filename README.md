@@ -24,6 +24,7 @@
 - Customize the email message with variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK].
 - Reset message to default template.
 - Send personalized emails to multiple students at once.
+- Supports Markdown formatting
 
 ## Installation
 Clone the git directory
@@ -63,6 +64,8 @@ MAIL_FROM_NAME="${APP_NAME}"
 You can start the web page
 ```bash
 php artisan serve
+# Or via docker
+docker run -p 8000:8000 exam-mark-webmailer:1
 ```
 
 ### Steps to send marks:

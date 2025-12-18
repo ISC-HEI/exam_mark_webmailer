@@ -9,7 +9,7 @@
             <p class="text-muted small mb-0">Manage exams and notify students efficiently.</p>
         </div>
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-0 py-2" role="alert">
+            <div class="alert alert-success fade show shadow-sm border-0 mb-0 py-2" role="alert">
                 <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
             </div>
         @endif
@@ -65,7 +65,7 @@
                             </form>
                         </div>
                         
-                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : [STUDENT_MARK]\n\nEn cas de question merci de contacter <your.email@domain.ch>")) }}</textarea>
+                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter <your.email@domain.ch>")) }}</textarea>
                         
                         <div class="mt-2 text-white-50 small fst-italic">
                             <i class="bi bi-info-circle me-1"></i> Variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK]
@@ -106,8 +106,8 @@
                             <tr class="text-uppercase small text-muted">
                                 <th class="ps-4 py-3">Name</th>
                                 <th class="py-3">Email</th>
-                                <th class="py-3">Mark</th>
-                                <th class="text-end pe-4 py-3">Action</th>
+                                <th class="text-center py-3">Mark</th>
+                                <th class="text-center pe-4 py-3">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,7 +124,7 @@
                                            class="form-control text-center fw-bold mark-input border-0" 
                                             value="{{ $student['mark'] }}">
                                 </td>
-                                <td class="text-end pe-4">
+                                <td class="text-center pe-4">
                                 <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -195,7 +195,6 @@
     }
 
 
-    console.log(removeButtons)
     removeButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const index = this.getAttribute('data-index');
