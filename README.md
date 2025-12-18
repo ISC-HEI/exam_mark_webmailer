@@ -25,6 +25,7 @@
 - Reset message to default template.
 - Send personalized emails to multiple students at once.
 - Supports Markdown formatting
+- Ctrl + Enter shortcut for sending emails
 
 ## Installation
 Clone the git directory

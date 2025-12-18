@@ -50,10 +50,10 @@
                     <div>
                         <label class="form-label text-secondary small fw-bold text-uppercase">Informations</label>
                         <div class="mb-2">
-                            <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}" required placeholder="Course name">
+                            <input type="text" form="send-marks-form" name="course_name" class="form-control bg-secondary text-white border-0" value="{{ old('course_name') }}"  placeholder="Course name">
                         </div>
                         <div>
-                            <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}" required placeholder="Exam name">
+                            <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}"  placeholder="Exam name">
                         </div>
                     </div>
 
@@ -82,6 +82,11 @@
                 <div class="card-footer bg-transparent border-0 p-3 pt-0">
                     <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-3 fw-bold shadow">
                         <i class="bi bi-send-fill me-2"></i> Send marks
+                        <div class="ms-2 d-none d-md-block" style="opacity: 0.8">
+                            <kbd class="bg-light text-dark border-0 px-2 py-1 small shadow-sm">Ctrl</kbd>
+                            <span class="small">+</span>
+                            <kbd class="bg-light text-dark border-0 px-2 py-1 small shadow-sm">Enter</kbd>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -92,6 +97,15 @@
                 <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2"></i>Students :</h5>
                     
+                    <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm border">
+                        <h6 class="mb-0 text-muted small fw-bold text-uppercase me-2">
+                            Total Students
+                        </h6>
+                        <span id="student-counter" class="badge rounded-pill fs-6 fw-bold {{ count($students) == 0 ? 'bg-secondary' : 'bg-primary' }}">
+                            {{ count($students) }}
+                        </span>
+                    </div>
+
                     <div class="d-flex gap-2">
                         <button type="button" id="add-student-btn" class="btn btn-light border">
                             <i class="bi bi-plus-lg text-success"></i> Add student
@@ -228,5 +242,15 @@
             sendMarksForm.action = '{{ route('marks.send') }}';
         });
     }
+
+    // --------------------
+    // Send email shortcut
+    // --------------------
+    document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const sendBtn = document.querySelector('button[form="send-marks-form"]');
+        if (sendBtn) sendBtn.click();
+    }
+});
 </script>
 @endsection
