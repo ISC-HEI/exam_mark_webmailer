@@ -9,6 +9,8 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
+use Illuminate\Mail\Mailables\Attachment;
+use Illuminate\Support\Facades\Storage;
 
 class StudentMarkMail extends Mailable
 {
@@ -16,14 +18,16 @@ class StudentMarkMail extends Mailable
 
     public $courseName;
     public $messageContent;
+    protected $filePath;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($courseName, $messageContent)
+    public function __construct($courseName, $messageContent, $filePath = null)
     {
         $this->courseName = $courseName;
         $this->messageContent = Str::markdown($messageContent);
+        $this->filePath = $filePath;
     }
 
     /**
@@ -54,6 +58,11 @@ class StudentMarkMail extends Mailable
      */
     public function attachments(): array
     {
+        if ($this->filePath && file_exists(Storage::disk('public')->path($this->filePath))) {
+            return [
+                Attachment::fromPath(Storage::disk('public')->path($this->filePath))
+            ];
+        }
         return [];
     }
 }

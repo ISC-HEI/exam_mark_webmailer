@@ -25,10 +25,12 @@ class MarksRequest extends FormRequest
             'course_name' => 'bail|required|string|min:3',
             'exam_name' => 'bail|required|string|min:3',
             'message' => 'bail|required|string|min:3',
-            'students' => 'required|array|min:1',
-            'students.*.name' => 'required|string|min:2',
-            'students.*.email' => 'required|email',
-            'students.*.mark' => 'required|numeric|min:1|max:6',
+            'teacher_email' => 'bail|required|email',
+            'students' => 'bail|required|array|min:1',
+            'students.*.name' => 'bail|required|string|min:2',
+            'students.*.email' => 'bail|required|email',
+            'students.*.mark' => 'bail|required|numeric|min:1|max:6',
+            'students.*.individual_file' => 'nullable|file|max:5120'
         ];
     }
 

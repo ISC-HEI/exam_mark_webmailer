@@ -65,7 +65,7 @@
         </div>
     @endif
 
-    <form id="send-marks-form" method="POST" action="{{ route('marks.send') }}">
+    <form id="send-marks-form" method="POST" enctype="multipart/form-data" action="{{ route('marks.send') }}">
         @csrf
         <input type="hidden" name="action" id="form-action-input" value="send">
         <input type="hidden" name="remove_index" id="remove-index-input" value="">
@@ -174,6 +174,7 @@
                                 <th class="ps-4 py-3">Name</th>
                                 <th class="py-3">Email</th>
                                 <th class="text-center py-3">Mark</th>
+                                <th class="text-center py-3">Attachement</th>
                                 <th class="text-center pe-4 py-3">Action</th>
                             </tr>
                         </thead>
@@ -190,6 +191,9 @@
                                     <input type="number" id="inputMark" form="send-marks-form" step="0.1" min="1" max="6" name="students[{{ $index }}][mark]" 
                                            class="form-control text-center fw-bold mark-input border-0" 
                                             value="{{ $student['mark'] }}">
+                                </td>
+                                <td>
+                                    <input type="file" form="send-marks-form" name="students[{{ $index }}][individual_file]" value="students[{{ $index }}][individual_file]" class="form-control form-control-sm">
                                 </td>
                                 <td class="text-center pe-4">
                                 <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
@@ -361,6 +365,7 @@
                         clearInterval(timer);
                     }, { once: true });
                 } else {
+                    console.log(result)
                     displayErrors(result.errors);
                 }
             } catch (error) {

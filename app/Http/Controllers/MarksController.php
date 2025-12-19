@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StudentMarkMail;
 use App\Http\Requests\MarksRequest;
+use Illuminate\Support\Facades\Storage;
 
 class MarksController extends Controller
 {
@@ -74,13 +75,18 @@ class MarksController extends Controller
 
     public function sendMarks(MarksRequest $request)
     {
-        foreach ($request->students as $student) {
+        foreach ($request->students as $index => $student) {
             if (!empty($student['name']) && !empty($student['email'])) {
 
                 $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
                 $missingVariables = [];
 
+                $average = $this->getClassAverage($request->students);
+                $files = $request->file('students');
+
                 foreach ($requiredVariables as $var) {
+                    $tempFilePath = null;
+
                     if (strpos($request->message, $var) === false) {
                         $missingVariables[] = $var;
                     }
@@ -91,16 +97,26 @@ class MarksController extends Controller
                         'message' => 'Le message doit contenir les variables suivantes : ' . implode(', ', $missingVariables)
                     ])->withInput();
                 }
-
+                if (isset($files[$index]['individual_file'])) {
+                    $file = $files[$index]['individual_file'];
+                    
+                    $path = $file->store('temp', 'public');
+                    $tempFilePath = $path;
+                }
+                
                 $message = str_replace(
                     ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
-                    [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students), $request->teacher_email],
+                    [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $average, $request->teacher_email],
                     $request->message
                 );
-
+                
                 Mail::to($student['email'])->send(
-                    new StudentMarkMail($request->course_name, $message)
+                    new StudentMarkMail($request->course_name, $message, $tempFilePath)
                 );
+
+                if ($tempFilePath && file_exists(Storage::disk('public')->path($tempFilePath))) {
+                    unlink(Storage::disk('public')->path($tempFilePath));
+                }
             }
         }
 
@@ -123,13 +139,14 @@ class MarksController extends Controller
     }
 
     public function sendTestEmail(MarksRequest $request) {
+        $student = $request->students[0] ?? null;
 
-            $student = $request->students[0];
-
-            if (!empty($student['name']) && !empty($student['email'])) {
+        if ($student && !empty($student['name']) && !empty($student['email'])) {
 
             $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
             $missingVariables = [];
+            
+            $average = $this->getClassAverage($request->students);
 
             foreach ($requiredVariables as $var) {
                 if (strpos($request->message, $var) === false) {
@@ -143,18 +160,34 @@ class MarksController extends Controller
                 ])->withInput();
             }
 
+            $tempFilePath = null;
+            $files = $request->file('students');
+
+            if (isset($files[0]['individual_file'])) {
+                $file = $files[0]['individual_file'];
+                $path = $file->store('temp', 'public');
+                $tempFilePath = $path;
+            }
+
             $message = str_replace(
                 ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
-                [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $this->getClassAverage($request->students), $request->teacher_email],
+                [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $average, $request->teacher_email],
                 $request->message
             );
 
             Mail::to($request->teacher_email)->send(
-                new StudentMarkMail($request->course_name, $message)
+                new StudentMarkMail($request->course_name, $message, $tempFilePath)
             );
+
+            if ($tempFilePath) {
+                $fullPath = Storage::disk('public')->path($tempFilePath);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
         }
 
-        return redirect()->route('marks.form')->with('success', 'The test email have been sent')->withInput();
+        return redirect()->route('marks.form')->with('success', 'The test email has been sent')->withInput();
     }
 
     public function getClassAverage($students) {
