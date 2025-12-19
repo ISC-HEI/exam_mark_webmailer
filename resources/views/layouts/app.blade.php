@@ -6,8 +6,20 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script>
+        (function() {
+            const storedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = storedTheme || systemTheme;
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        })();
+    </script>
 </head>
 <style>
+  * {
+      box-sizing: border-box;
+      transition: background-color 0.3s, color 0.3s;
+  }
   @keyframes pulse-count {
       0% { transform: scale(1); }
       50% { transform: scale(1.15); }
@@ -80,6 +92,19 @@
     font-size: 0.8rem;
     opacity: 0.5;
     margin-top: 5px;
+  }
+  #mainContainer {
+    background-color: #f8f9fa
+  }
+  [data-bs-theme="dark"] #mainContainer {
+    background-color: #434343
+  }
+
+  .bg-white-prefer {
+    background-color: #ffffff;
+  }
+  [data-bs-theme="dark"] .bg-white-prefer {
+    background-color: #212529;
   }
 </style>
 <body>

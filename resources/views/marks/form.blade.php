@@ -26,7 +26,7 @@
                     <i class="bi bi-info-circle me-1"></i> This action will send an email to each students.
                 </div>
             </div>
-            <div class="modal-footer bg-light">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" id="final-confirm-send" class="btn btn-primary px-4">Confirm the sending</button>
             </div>
@@ -42,12 +42,16 @@
     </div>
 </div>
 
-<div class="container-fluid p-4 bg-light min-vh-100">
+<div id="mainContainer" class="container-fluid p-4 min-vh-100">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-dark mb-0">Marks Mail Sender</h2>
+            <h2 class="fw-bold mb-0">Marks Mail Sender</h2>
             <p class="text-muted small mb-0">Manage exams and notify students efficiently.</p>
         </div>
+        <button id="theme-toggle" style="width: 30px; height: 30px" class="btn btn-outline-secondary d-flex justify-content-center align-items-center border-0 rounded-circle p-2">
+            <i class="bi bi-sun-fill d-block-light d-none"></i>
+            <i class="bi bi-moon-stars-fill d-block-dark"></i>
+        </button>
         @if(session('success'))
             <div class="alert alert-success fade show shadow-sm border-0 mb-0 py-2" role="alert">
                 <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
@@ -151,10 +155,10 @@
 
         <div class="col-lg-8 col-xl-9">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2"></i>Students :</h5>
+                <div class="card-header bg-white-prefer border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Students :</h5>
                     
-                    <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm border">
+                    <div class="d-flex align-items-center bg-white-prefer px-3 py-2 rounded-pill shadow-sm border">
                         <h6 class="mb-0 text-muted small fw-bold text-uppercase me-2">
                             Total Students
                         </h6>
@@ -164,13 +168,13 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="button" id="add-student-btn" class="btn btn-light border">
+                        <button type="button" id="add-student-btn" class="btn border">
                             <i class="bi bi-plus-lg text-success"></i> Add student
                         </button>
-                        <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center bg-light border rounded px-2">
+                        <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center border rounded px-2">
                             @csrf
-                            <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0 bg-transparent">
-                            <button type="submit" class="btn btn-sm btn-link text-decoration-none fw-bold text-dark">
+                            <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0">
+                            <button type="submit" class="btn btn-sm btn-link text-decoration-none fw-bold">
                                 <i class="bi bi-upload"></i>
                             </button>
                         </form>
@@ -584,5 +588,38 @@
         const defaultMessage = `Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]`;
         textarea.value = defaultMessage;
     });
+
+    const setTheme = (theme) => {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('theme', theme);
+    };
+
+    const storedTheme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(storedTheme);
+
+    const themeBtn = document.getElementById('theme-toggle');
+    const themeIconSun = themeBtn.querySelector('.bi-sun-fill');
+    const themeIconMoon = themeBtn.querySelector('.bi-moon-stars-fill');
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            if (newTheme === 'dark') {
+                themeIconMoon.classList.remove('d-block-dark');
+                themeIconMoon.classList.add('d-none');
+                themeIconSun.classList.remove('d-none');
+                themeIconSun.classList.add('d-block-light');
+            } else {
+                themeIconSun.classList.remove('d-block-light');
+                themeIconSun.classList.add('d-none');
+                themeIconMoon.classList.remove('d-none');
+                themeIconMoon.classList.add('d-block-dark');
+            }
+            setTheme(newTheme);
+        });
+    }
 </script>
 @endsection
