@@ -29,8 +29,9 @@
 - Customize the email message with many variables.
 - Reset message to default template.
 - Send personalized emails to multiple students at once.
-- Supports Markdown formatting
-- Many shortcuts for fast editing
+- Supports Markdown formatting.
+- Many shortcuts for fast editing.
+- search bar from 5 students.
 
 ## Installation
 Clone the git directory

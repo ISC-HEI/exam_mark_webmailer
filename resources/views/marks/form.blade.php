@@ -159,11 +159,10 @@
                     <h5 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Students :</h5>
                     
                     <div class="d-flex align-items-center bg-white-prefer px-3 py-2 rounded-pill shadow-sm border">
-                        <h6 class="mb-0 text-muted small fw-bold text-uppercase me-2">
+                        <h6 id="totalStudents" class="mb-0 text-muted small fw-bold text-uppercase me-2">
                             Total Students
                         </h6>
-                        <span id="student-counter" class="badge rounded-pill fs-6 fw-bold {{ count($students) == 0 ? 'bg-secondary' : 'bg-primary' }}">
-                            {{ count($students) }}
+                        <span id="student-counter" class="badge rounded-pill fs-6 fw-bold bg-primary">
                         </span>
                     </div>
 
@@ -180,7 +179,16 @@
                         </form>
                     </div>
                 </div>
-
+                @if (count($students) >= 5)
+                <div id="search-container" class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white-prefer border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" id="student-search" class="form-control border-start-0 ps-0" placeholder="Search by name, email or marks...">
+                    </div>
+                </div>
+                @endif
                 <div class="card-body p-0 table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
@@ -225,7 +233,7 @@
                             @endforeach
                             
                             @if(count($students) === 0)
-                            <tr>
+                            <tr class="empty">
                                 <td colspan="5" class="text-center py-5 text-muted">
                                     No students in the list. Add them manually or import a CSV.
                                 </td>
@@ -589,6 +597,9 @@
         textarea.value = defaultMessage;
     });
 
+    // ---------------
+    // Theme toggle
+    // ---------------
     const setTheme = (theme) => {
         document.documentElement.setAttribute('data-bs-theme', theme);
         localStorage.setItem('theme', theme);
@@ -621,5 +632,74 @@
             setTheme(newTheme);
         });
     }
+
+    // ---------------
+    // Search students
+    // ---------------
+    const searchInput = document.getElementById('student-search');
+    const tableBody = document.querySelector('table tbody');
+    const totalStudents = document.getElementById('totalStudents');
+    const originalTotalStudentsText = totalStudents.innerText;
+
+    if (searchInput) {
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+
+            if (searchTerm !== '') {
+                totalStudents.innerText = `Filtered Students`;
+            } else {
+                totalStudents.innerText = originalTotalStudentsText;
+            }
+
+            const rows = tableBody.querySelectorAll('tr:not(.no-result)');
+            let hasVisibleRow = false;
+            
+            rows.forEach(row => {
+                const name = row.querySelector('input[name*="[name]"]').value.toLowerCase();
+                const email = row.querySelector('input[name*="[email]"]').value.toLowerCase();
+                const mark = row.querySelector('input[name*="[mark]"]').value.toLowerCase();
+
+                if (name.includes(searchTerm) || email.includes(searchTerm) || mark.includes(searchTerm)) {
+                    row.style.display = '';
+                    hasVisibleRow = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            let noResultRow = tableBody.querySelector('.no-result');
+            if (!hasVisibleRow) {
+                if (!noResultRow) {
+                    noResultRow = document.createElement('tr');
+                    noResultRow.className = 'no-result';
+                    noResultRow.innerHTML = `<td colspan="5" class="text-center py-4 text-muted fst-italic">Not students find for: "${searchTerm}"</td>`;
+                    tableBody.appendChild(noResultRow);
+                }
+            } else if (noResultRow) {
+                noResultRow.remove();
+            }
+            updateStudentCounter();
+        });
+    }
+        
+    // --------------------
+    // Total students counter
+    // --------------------
+    const studentCounter = document.getElementById('student-counter');
+
+    const updateStudentCounter = () => {
+        const allStudents = tableBody.querySelectorAll('tr:not([style*="display: none"]):not(.no-result):not(.empty)');
+        console.log(allStudents);
+
+        studentCounter.innerText = allStudents.length;
+
+        if (allStudents.length === 0) {
+            studentCounter.classList.replace('bg-primary', 'bg-secondary');
+        } else {
+            studentCounter.classList.replace('bg-secondary', 'bg-primary');
+        }
+    };
+    updateStudentCounter();
 </script>
 @endsection
