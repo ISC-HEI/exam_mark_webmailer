@@ -27,6 +27,19 @@
         display: inline-block;
         vertical-align: middle;
     }
+    #variable-menu .list-group-item {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    #textarea-mirror {
+        visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
 </style>
 <body>
     <div>

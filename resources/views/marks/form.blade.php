@@ -107,11 +107,18 @@
                                 </button>
                             </form>
                         </div>
-                        
+                        <div id="variable-menu" class="list-group shadow-lg position-absolute d-none" style="z-index: 1000; min-width: 200px;">
+                            <button type="button" class="list-group-item list-group-item-action list-group-item-dark" data-var="[STUDENT_NAME]">Student's name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[STUDENT_MARK]">Mark</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[COURSE_NAME]">Course name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[EXAM_NAME]">Exam name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[CLASS_AVERAGE]">Class average</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[MY_EMAIL]">My email</button>
+                        </div>
                         <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>
                         
                         <div class="mt-2 text-white-50 small fst-italic">
-                            <i class="bi bi-info-circle me-1"></i> Variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK], [CLASS_AVERAGE], [MY_EMAIL]
+                            <i class="bi bi-lightbulb"></i> Type <span class="fw-bold m-1">[</span> for variables
                         </div>
                     </div>
                 </div>
@@ -410,5 +417,116 @@
         sendMarksForm.action = '{{ route('marks.send_test') }}';
         sendMarksForm.submit();
     })
+
+    // ---------------
+    // Variables choice
+    // ---------------
+    const textarea = document.querySelector('textarea[name="message"]');
+    const menu = document.getElementById('variable-menu');
+    const items = menu.querySelectorAll('.list-group-item');
+    let activeIndex = 0;
+
+    const insertVariable = (variable) => {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        
+        const before = text.substring(0, start - 1);
+        const after = text.substring(end);
+        
+        textarea.value = before + variable + after;
+        
+        const newCursorPos = start - 1 + variable.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+        
+        hideMenu();
+        textarea.focus();
+    };
+
+    const hideMenu = () => {
+        menu.classList.add('d-none');
+        activeIndex = 0;
+    };
+
+    textarea.addEventListener('input', function(e) {
+        const value = textarea.value;
+        const cursorPos = textarea.selectionStart;
+        const lastChar = value.substring(cursorPos - 1, cursorPos);
+
+        if (lastChar === '[') {
+            const coordinates = getCaretCoordinates(textarea, cursorPos);
+            
+            menu.style.top = (textarea.offsetTop + coordinates.top + 20) + 'px';
+            menu.style.left = (textarea.offsetLeft + coordinates.left) + 'px';
+            menu.classList.remove('d-none');
+        } else {
+            hideMenu();
+        }
+    });
+
+    textarea.addEventListener('keydown', function(e) {
+        if (!menu.classList.contains('d-none')) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                insertVariable(items[activeIndex].getAttribute('data-var'));
+                resetActiveButton(items)
+            } else if (e.key === 'Escape') {
+                hideMenu();
+            }
+        }
+    });
+
+    function updateActiveItem() {
+        items.forEach((item, index) => {
+            item.classList.toggle('list-group-item-dark', index === activeIndex);
+        });
+    }
+
+    items.forEach((item) => {
+        item.addEventListener('click', () => {
+            insertVariable(item.getAttribute('data-var'));
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== textarea) hideMenu();
+    });
+
+    function getCaretCoordinates(element, position) {
+        const div = document.createElement('div');
+        div.id = 'textarea-mirror';
+        const style = window.getComputedStyle(element);
+        
+        const props = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'padding', 'border', 'width', 'boxSizing'];
+        props.forEach(prop => div.style[prop] = style[prop]);
+        
+        div.textContent = element.value.substring(0, position);
+        const span = document.createElement('span');
+        span.textContent = element.value.substring(position) || '.';
+        div.appendChild(span);
+        
+        document.body.appendChild(div);
+        const { offsetTop: top, offsetLeft: left } = span;
+        document.body.removeChild(div);
+        
+        return { top, left };
+    }
+
+    function resetActiveButton(items) {
+        items.forEach(item => {
+            if (item.classList.contains("list-group-item-dark")) {
+                item.classList.remove("list-group-item-dark")
+            }
+        })
+        items[0].classList.add("list-group-item-dark")
+    }
 </script>
 @endsection

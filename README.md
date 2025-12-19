@@ -81,6 +81,9 @@ docker run -p 8000:8000 exam-mark-webmailer:1
     - [COURSE_NAME] → course name
     - [EXAM_NAME] → exam name
     - [STUDENT_MARK] → student’s mark
+    - [CLASS_AVERAGE] → class average
+    - [MY_EMAIL] → teacher's email
+> Tip : You can type **[** to get the variables 
 4. Click Send Emails.
 
 *Optional: use Reset Message to restore the default template.*
