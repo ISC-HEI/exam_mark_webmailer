@@ -26,6 +26,8 @@ class MarksRequest extends FormRequest
             'exam_name' => 'bail|required|string|min:3',
             'message' => 'bail|required|string|min:3',
             'teacher_email' => 'bail|required|email',
+            'global_attachment' => 'nullable|array|max:5',
+            'global_attachment.*' => 'file|max:10240',
             'students' => 'bail|required|array|min:1',
             'students.*.name' => 'bail|required|string|min:2',
             'students.*.email' => 'bail|required|email',

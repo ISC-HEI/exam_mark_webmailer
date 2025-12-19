@@ -75,34 +75,45 @@ class MarksController extends Controller
 
     public function sendMarks(MarksRequest $request)
     {
+        $globalAttachments = [];
+        if ($request->hasFile('global_attachment')) {
+            foreach ($request->file('global_attachment') as $file) {
+                $path = $file->store('temp', 'public');
+                $globalAttachments[] = [
+                    'path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime' => $file->getMimeType(),
+                ];
+            }
+        }
+
+        $files = $request->file('students');
+        $average = $this->getClassAverage($request->students);
+
+        $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
+        $missingVariables = [];
+        foreach ($requiredVariables as $var) {
+            if (strpos($request->message, $var) === false) {
+                $missingVariables[] = $var;
+            }
+        }
+
+        if (!empty($missingVariables)) {
+            return back()->withErrors([
+                'message' => 'Le message doit contenir les variables suivantes : ' . implode(', ', $missingVariables)
+            ])->withInput();
+        }
+
         foreach ($request->students as $index => $student) {
             if (!empty($student['name']) && !empty($student['email'])) {
+                
+                $individualFilePath = null;
+                $individualFileName = null;
 
-                $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
-                $missingVariables = [];
-
-                $average = $this->getClassAverage($request->students);
-                $files = $request->file('students');
-
-                foreach ($requiredVariables as $var) {
-                    $tempFilePath = null;
-
-                    if (strpos($request->message, $var) === false) {
-                        $missingVariables[] = $var;
-                    }
-                }
-
-                if (!empty($missingVariables)) {
-                    return back()->withErrors([
-                        'message' => 'Le message doit contenir les variables suivantes : ' . implode(', ', $missingVariables)
-                    ])->withInput();
-                }
                 if (isset($files[$index]['individual_file'])) {
                     $file = $files[$index]['individual_file'];
-                    
-                    $originalName = $file->getClientOriginalName();
-                    $path = $file->store('temp', 'public');
-                    $tempFilePath = $path;
+                    $individualFileName = $file->getClientOriginalName();
+                    $individualFilePath = $file->store('temp', 'public');
                 }
                 
                 $message = str_replace(
@@ -112,18 +123,30 @@ class MarksController extends Controller
                 );
                 
                 Mail::to($student['email'])->send(
-                    new StudentMarkMail($request->course_name, $message, $tempFilePath, $originalName ?? null)
+                    new StudentMarkMail(
+                        $request->course_name, 
+                        $message, 
+                        $individualFilePath, 
+                        $individualFileName, 
+                        $globalAttachments
+                    )
                 );
 
-                if ($tempFilePath && file_exists(Storage::disk('public')->path($tempFilePath))) {
-                    unlink(Storage::disk('public')->path($tempFilePath));
+                if ($individualFilePath && Storage::disk('public')->exists($individualFilePath)) {
+                    Storage::disk('public')->delete($individualFilePath);
                 }
+            }
+        }
+
+        foreach ($globalAttachments as $att) {
+            if (Storage::disk('public')->exists($att['path'])) {
+                Storage::disk('public')->delete($att['path']);
             }
         }
 
         $request->session()->forget('students');
 
-        return redirect()->route('marks.form')->with('success', 'Emails have been sent');
+        return redirect()->route('marks.form')->with('success', 'Emails have been sent successfully!');
     }
 
     public function resetMessage(Request $request)
@@ -147,8 +170,6 @@ class MarksController extends Controller
             $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
             $missingVariables = [];
             
-            $average = $this->getClassAverage($request->students);
-
             foreach ($requiredVariables as $var) {
                 if (strpos($request->message, $var) === false) {
                     $missingVariables[] = $var;
@@ -161,17 +182,29 @@ class MarksController extends Controller
                 ])->withInput();
             }
 
+            $globalAttachments = [];
+            if ($request->hasFile('global_attachment')) {
+                foreach ($request->file('global_attachment') as $file) {
+                    $path = $file->store('temp', 'public');
+                    $globalAttachments[] = [
+                        'path' => $path,
+                        'name' => $file->getClientOriginalName(),
+                        'mime' => $file->getMimeType(),
+                    ];
+                }
+            }
+
             $tempFilePath = null;
+            $originalName = null;
             $files = $request->file('students');
 
             if (isset($files[0]['individual_file'])) {
                 $file = $files[0]['individual_file'];
-
                 $originalName = $file->getClientOriginalName();
-                $path = $file->store('temp', 'public');
-                $tempFilePath = $path;
+                $tempFilePath = $file->store('temp', 'public');
             }
 
+            $average = $this->getClassAverage($request->students);
             $message = str_replace(
                 ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
                 [$student['name'], $request->course_name, $request->exam_name, $student['mark'], $average, $request->teacher_email],
@@ -179,13 +212,22 @@ class MarksController extends Controller
             );
 
             Mail::to($request->teacher_email)->send(
-                new StudentMarkMail($request->course_name, $message, $tempFilePath, $originalName ?? null)
+                new StudentMarkMail(
+                    $request->course_name, 
+                    $message, 
+                    $tempFilePath, 
+                    $originalName, 
+                    $globalAttachments
+                )
             );
 
-            if ($tempFilePath) {
-                $fullPath = Storage::disk('public')->path($tempFilePath);
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
+            if ($tempFilePath && Storage::disk('public')->exists($tempFilePath)) {
+                Storage::disk('public')->delete($tempFilePath);
+            }
+
+            foreach ($globalAttachments as $att) {
+                if (Storage::disk('public')->exists($att['path'])) {
+                    Storage::disk('public')->delete($att['path']);
                 }
             }
         }

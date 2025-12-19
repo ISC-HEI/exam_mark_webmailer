@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -17,24 +16,20 @@ class StudentMarkMail extends Mailable
     use Queueable, SerializesModels;
 
     public $courseName;
-    public $messageContent;
-    protected $filePath;
-    protected $originalFileName;
+    public $contentMessage;
+    public $individualFilePath;
+    public $individualFileName;
+    public $globalAttachments;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct($courseName, $messageContent, $filePath = null, $originalFileName = null)
+    public function __construct($courseName, $message, $individualFilePath = null, $individualFileName = null, $globalAttachments = [])
     {
         $this->courseName = $courseName;
-        $this->messageContent = Str::markdown($messageContent);
-        $this->filePath = $filePath;
-        $this->originalFileName = $originalFileName;
+        $this->contentMessage = Str::markdown($message);
+        $this->individualFilePath = $individualFilePath;
+        $this->individualFileName = $individualFileName;
+        $this->globalAttachments = $globalAttachments;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -52,19 +47,20 @@ class StudentMarkMail extends Mailable
         );
     }
 
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
-        if ($this->filePath && file_exists(Storage::disk('public')->path($this->filePath))) {
-            return [
-                Attachment::fromPath(Storage::disk('public')->path($this->filePath))->as($this->originalFileName)
-            ];
+        $attachments = [];
+
+        if ($this->individualFilePath) {
+            $attachments[] = Attachment::fromStorageDisk('public', $this->individualFilePath)
+                ->as($this->individualFileName);
         }
-        return [];
+
+        foreach ($this->globalAttachments as $file) {
+            $attachments[] = Attachment::fromStorageDisk('public', $file['path'])
+                ->as($file['name']);
+        }
+
+        return $attachments;
     }
 }

@@ -9,7 +9,7 @@
 
         <tr>
             <td style="padding:30px; color:#495057; font-size:16px; line-height:1.6; text-align:center;">
-                {!! $messageContent !!}
+                {!! $contentMessage !!}
             </td>
         </tr>
 

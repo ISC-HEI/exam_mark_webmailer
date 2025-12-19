@@ -115,14 +115,22 @@
                             <button type="button" class="list-group-item list-group-item-action" data-var="[CLASS_AVERAGE]">Class average</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[MY_EMAIL]">My email</button>
                         </div>
-                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 250px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>
+                        <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 160px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>
                         
                         <div class="mt-2 text-white-50 small fst-italic">
                             <i class="bi bi-lightbulb"></i> Type <span class="fw-bold m-1">[</span> for variables
                         </div>
                     </div>
+                    <div class="custom-file-upload w-100">
+                        <input type="file" id="fileInput" form="send-marks-form" name="global_attachment[]" multiple />
+                        <label for="fileInput" class="d-flex flex-column align-items-center justify-content-center py-3">
+                        <i class="bi bi-cloud-arrow-up mb-2"></i>
+                        <span class="main-text">Click here</span>
+                        <span class="sub-text">This will be the global attachement</span>
+                        <div id="file-count" class="mt-2 text-light small"></div>
+                        </label>
+                    </div>
                 </div>
-
                 <div class="card-footer bg-transparent border-0 p-3 pt-0">
                     <button type="button" id="send-test-email" class="btn btn-outline-light w-100 mb-2 py-2 fw-bold shadow-sm">
                         <i class="bi bi-envelope-check me-2"></i> Send a test email
@@ -205,7 +213,7 @@
                             
                             @if(count($students) === 0)
                             <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
+                                <td colspan="5" class="text-center py-5 text-muted">
                                     No students in the list. Add them manually or import a CSV.
                                 </td>
                             </tr>
@@ -536,5 +544,14 @@
         })
         items[0].classList.add("list-group-item-dark")
     }
+
+    // ---------------
+    // File input - global attachment
+    // ---------------
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const count = e.target.files.length;
+        const display = document.getElementById('file-count');
+        display.innerText = count > 0 ? ( count === 1 ? `${count} file selected` : `${count} files selected`) : "";
+    });
 </script>
 @endsection
