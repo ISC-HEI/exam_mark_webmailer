@@ -414,6 +414,9 @@
 
     sendTestEmail.addEventListener("click", () => {
         formActionInput.value = 'send';
+        loadingOverlay.classList.remove("d-none");
+        loadingOverlay.classList.add("d-flex");
+
         sendMarksForm.action = '{{ route('marks.send_test') }}';
         sendMarksForm.submit();
     })

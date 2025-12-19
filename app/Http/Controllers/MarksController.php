@@ -154,7 +154,7 @@ class MarksController extends Controller
             );
         }
 
-        return redirect()->route('marks.form')->withInput();
+        return redirect()->route('marks.form')->with('success', 'The test email have been sent')->withInput();
     }
 
     public function getClassAverage($students) {
