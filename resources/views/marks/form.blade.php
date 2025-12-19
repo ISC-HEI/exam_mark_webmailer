@@ -144,11 +144,6 @@
                     </button>
                     <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-3 fw-bold shadow">
                         <i class="bi bi-send-fill me-2"></i> Send marks
-                        <div class="ms-2 d-none d-md-block" style="opacity: 0.8">
-                            <kbd class="bg-light text-dark border-0 px-2 py-1 small shadow-sm">Ctrl</kbd>
-                            <span class="small">+</span>
-                            <kbd class="bg-light text-dark border-0 px-2 py-1 small shadow-sm">Enter</kbd>
-                        </div>
                     </button>
                 </div>
             </div>
@@ -315,12 +310,25 @@
     }
 
     // --------------------
-    // Send email shortcut
+    // Shortcuts
     // --------------------
     document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if (e.altKey && e.key === 'Enter') {
             const sendBtn = document.querySelector('button[form="send-marks-form"]');
             if (sendBtn) sendBtn.click();
+        }
+        if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+            e.preventDefault();
+            const addBtn = document.getElementById('add-student-btn');
+            if (addBtn) addBtn.click();
+        }
+        if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+            e.preventDefault();
+            document.querySelector('textarea[name="message"]').focus();
+        }
+        if (e.altKey && (e.key === 'r' || e.key === 'R')) {
+            e.preventDefault();
+            document.getElementById('reset-message-btn').click();
         }
     });
 

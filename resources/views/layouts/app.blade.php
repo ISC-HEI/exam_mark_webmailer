@@ -18,15 +18,6 @@
       min-width: 35px;
       animation: pulse-count 0.3s ease-out;
   }
-
-  kbd {
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 0.6rem !important;
-      border-radius: 4px;
-      box-shadow: 0 2px 0 #cbd5e0;
-      display: inline-block;
-      vertical-align: middle;
-  }
   #variable-menu .list-group-item {
       padding: 8px 12px;
       font-size: 0.9rem;

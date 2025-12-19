@@ -19,16 +19,18 @@
     - [Configuration](#configuration)
 - [Usage](#usage)
     - [Steps to send marks](#steps-to-send-marks)
+    - [Available Variables](#available-variables)
+    - [Available Shortcuts](#available-shortcuts)
 - [License](#license)
 
 ## Features
 - Add or remove students dynamically.
 - Load students and marks from a CSV file.
-- Customize the email message with variables: [STUDENT_NAME], [COURSE_NAME], [EXAM_NAME], [STUDENT_MARK].
+- Customize the email message with many variables.
 - Reset message to default template.
 - Send personalized emails to multiple students at once.
 - Supports Markdown formatting
-- Ctrl + Enter shortcut for sending emails
+- Many shortcuts for fast editing
 
 ## Installation
 Clone the git directory
@@ -76,17 +78,32 @@ docker run -p 8000:8000 exam-mark-webmailer:1
 
 1. Fill in the Course Name and Exam Name.
 2. Add student details manually or load from a CSV file.
-3. Customize the email message using the available variables:
-    - [STUDENT_NAME] → student’s name
-    - [COURSE_NAME] → course name
-    - [EXAM_NAME] → exam name
-    - [STUDENT_MARK] → student’s mark
-    - [CLASS_AVERAGE] → class average
-    - [MY_EMAIL] → teacher's email
+3. Customize the email message using the available variables
 > Tip : You can type **[** to get the variables 
 4. Click Send Emails.
 
 *Optional: use Reset Message to restore the default template.*
+
+### Available Variables
+Here is a list of available variables
+|   **Variable**  |     **Description**     |
+|:---------------:|:-----------------------:|
+| [STUDENT_NAME]  | The name of the student |
+| [STUDENT_MARK]  | The mark of the student |
+| [COURSE_NAME]   | The name of the course  |
+| [EXAM_NAME]     | The name of the exam    |
+| [CLASS_AVERAGE] | The class average       |
+| [MY_EMAIL]      | Your email (teacher)    |
+
+### Available Shortcuts
+Here is a list of available shortcuts
+
+| **Shortcut** |       **Action**       |
+|:------------:|:----------------------:|
+| ALT + ENTER  | Send the marks         |
+| ALT + A      | Add a student          |
+| ALT + M      | Focus the message area |
+| ALT + R      | Reset the message      |
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.
