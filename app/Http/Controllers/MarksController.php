@@ -20,22 +20,68 @@ class MarksController extends Controller
     public function addStudent(Request $request)
     {
         $existingStudents = $request->input('students', []); 
+        $files = $request->file('students', []);
+
+        foreach ($existingStudents as $index => &$student) {
+            if (isset($files[$index]['individual_file'])) {
+                $file = $files[$index]['individual_file'];
+                $path = $file->store('temp', 'public');
+                
+                $student['temp_file_path'] = $path;
+                $student['temp_file_name'] = $file->getClientOriginalName();
+            }
+        }
+        $globalFiles = session('global_temp_files', []);
+    
+        if ($request->hasFile('global_attachment')) {
+            foreach ($request->file('global_attachment') as $file) {
+                $path = $file->store('temp', 'public');
+                $globalFiles[] = [
+                    'path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                ];
+            }
+        }
+        session(['global_temp_files' => $globalFiles]);
         
         $newStudent = ['name' => '', 'email' => '', 'mark' => ''];
 
         $updatedStudents = array_merge($existingStudents, [$newStudent]);
-
+        //dd($updatedStudents);
         $request->session()->put('students', $updatedStudents);
 
         $request->flashOnly(['course_name', 'exam_name', 'teacher_email', 'message']);
 
-        return redirect()->route('marks.form');
+        return redirect()->route('marks.form')->with('students', $updatedStudents);
     }
 
     public function removeStudent(Request $request)
     {
         $existingStudents = $request->input('students', []); 
         $indexToRemove = $request->input('remove_index');
+        $files = $request->file('students', []);
+
+        foreach ($existingStudents as $index => &$student) {
+            if (isset($files[$index]['individual_file'])) {
+                $file = $files[$index]['individual_file'];
+                $path = $file->store('temp', 'public');
+                
+                $student['temp_file_path'] = $path;
+                $student['temp_file_name'] = $file->getClientOriginalName();
+            }
+        }
+        $globalFiles = session('global_temp_files', []);
+    
+        if ($request->hasFile('global_attachment')) {
+            foreach ($request->file('global_attachment') as $file) {
+                $path = $file->store('temp', 'public');
+                $globalFiles[] = [
+                    'path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                ];
+            }
+        }
+        session(['global_temp_files' => $globalFiles]);
 
         if (isset($existingStudents[$indexToRemove])) {
             unset($existingStudents[$indexToRemove]);
@@ -75,14 +121,14 @@ class MarksController extends Controller
 
     public function sendMarks(MarksRequest $request)
     {
-        $globalAttachments = [];
+        $globalAttachments = session('global_temp_files', []);
+
         if ($request->hasFile('global_attachment')) {
             foreach ($request->file('global_attachment') as $file) {
                 $path = $file->store('temp', 'public');
                 $globalAttachments[] = [
                     'path' => $path,
                     'name' => $file->getClientOriginalName(),
-                    'mime' => $file->getMimeType(),
                 ];
             }
         }
@@ -114,6 +160,9 @@ class MarksController extends Controller
                     $file = $files[$index]['individual_file'];
                     $individualFileName = $file->getClientOriginalName();
                     $individualFilePath = $file->store('temp', 'public');
+                } elseif (isset($student['temp_file_path'])) {
+                    $individualFileName = $student['temp_file_name'] ?? null;
+                    $individualFilePath = $student['temp_file_path'];
                 }
                 
                 $message = str_replace(
@@ -139,23 +188,13 @@ class MarksController extends Controller
         }
 
         foreach ($globalAttachments as $att) {
-            if (Storage::disk('public')->exists($att['path'])) {
                 Storage::disk('public')->delete($att['path']);
             }
-        }
+        $request->session()->forget('global_temp_files');
 
         $request->session()->forget('students');
 
         return redirect()->route('marks.form')->with('success', 'Emails have been sent successfully!');
-    }
-
-    public function resetMessage(Request $request)
-    {
-        $students = $request->session()->get('students', []);
-
-        $request->session()->flash('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]");
-
-        return redirect()->route('marks.form')->withInput();
     }
 
     public function checkValidity(MarksRequest $request) {
@@ -182,14 +221,14 @@ class MarksController extends Controller
                 ])->withInput();
             }
 
-            $globalAttachments = [];
+            $globalAttachments = session('global_temp_files', []);
+
             if ($request->hasFile('global_attachment')) {
                 foreach ($request->file('global_attachment') as $file) {
                     $path = $file->store('temp', 'public');
                     $globalAttachments[] = [
                         'path' => $path,
                         'name' => $file->getClientOriginalName(),
-                        'mime' => $file->getMimeType(),
                     ];
                 }
             }
@@ -202,6 +241,9 @@ class MarksController extends Controller
                 $file = $files[0]['individual_file'];
                 $originalName = $file->getClientOriginalName();
                 $tempFilePath = $file->store('temp', 'public');
+            } elseif (isset($student['temp_file_path'])) {
+                $originalName = $student['temp_file_name'] ?? null;
+                $tempFilePath = $student['temp_file_path'];
             }
 
             $average = $this->getClassAverage($request->students);
@@ -220,16 +262,6 @@ class MarksController extends Controller
                     $globalAttachments
                 )
             );
-
-            if ($tempFilePath && Storage::disk('public')->exists($tempFilePath)) {
-                Storage::disk('public')->delete($tempFilePath);
-            }
-
-            foreach ($globalAttachments as $att) {
-                if (Storage::disk('public')->exists($att['path'])) {
-                    Storage::disk('public')->delete($att['path']);
-                }
-            }
         }
 
         return redirect()->route('marks.form')->with('success', 'The test email has been sent')->withInput();

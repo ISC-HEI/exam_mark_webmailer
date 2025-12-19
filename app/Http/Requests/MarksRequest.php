@@ -32,7 +32,9 @@ class MarksRequest extends FormRequest
             'students.*.name' => 'bail|required|string|min:2',
             'students.*.email' => 'bail|required|email',
             'students.*.mark' => 'bail|required|numeric|min:1|max:6',
-            'students.*.individual_file' => 'nullable|file|max:5120'
+            'students.*.individual_file' => 'nullable|file|max:5120',
+            'students.*.temp_file_path' => 'nullable|string',
+            'students.*.temp_file_name' => 'nullable|string',
         ];
     }
 

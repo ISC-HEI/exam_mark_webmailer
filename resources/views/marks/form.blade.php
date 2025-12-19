@@ -99,13 +99,9 @@
                     <div class="flex-grow-1 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label text-secondary small fw-bold text-uppercase mb-0">Message Email</label>
-                            
-                            <form method="POST" action="{{ route('marks.reset_message') }}">
-                                @csrf
-                                <button type="submit" class="btn btn-link btn-sm text-secondary text-decoration-none p-0" title="Réinitialiser">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                </button>
-                            </form>
+                            <button class="btn btn-link btn-sm text-secondary text-decoration-none p-0" title="Reset to default message" type="button" id="reset-message-btn">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            </button>
                         </div>
                         <div id="variable-menu" class="list-group shadow-lg position-absolute d-none" style="z-index: 1000; min-width: 200px;">
                             <button type="button" class="list-group-item list-group-item-action list-group-item-dark" data-var="[STUDENT_NAME]">Student's name</button>
@@ -124,11 +120,22 @@
                     <div class="custom-file-upload w-100">
                         <input type="file" id="fileInput" form="send-marks-form" name="global_attachment[]" multiple />
                         <label for="fileInput" class="d-flex flex-column align-items-center justify-content-center py-3">
-                        <i class="bi bi-cloud-arrow-up mb-2"></i>
-                        <span class="main-text">Click here</span>
-                        <span class="sub-text">This will be the global attachement</span>
-                        <div id="file-count" class="mt-2 text-light small"></div>
+                            <i class="bi bi-cloud-arrow-up mb-2"></i>
+                            <span class="main-text">Click here</span>
+                            <span class="sub-text">Add more global attachments</span>
+                             <div id="file-count" class="mt-2 text-light small"></div>
                         </label>
+
+                        @if(session('global_temp_files'))
+                            <div class="mt-2 px-3">
+                                <p class="small text-white-50 mb-1">Files already uploaded :</p>
+                                @foreach(session('global_temp_files') as $file)
+                                    <div class="badge bg-success mb-1 d-flex text-start align-items-center text-truncate">
+                                        <i class="bi bi-file-earmark-check me-1"></i> {{ $file['name'] }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 p-3 pt-0">
@@ -201,7 +208,14 @@
                                             value="{{ $student['mark'] }}">
                                 </td>
                                 <td>
-                                    <input type="file" form="send-marks-form" name="students[{{ $index }}][individual_file]" value="students[{{ $index }}][individual_file]" class="form-control form-control-sm">
+                                    @if(isset($student['temp_file_path']))
+                                        <div class="small text-success mb-1">
+                                            <i class="bi bi-file-check"></i> {{ $student['temp_file_name'] }}
+                                        </div>
+                                        <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_path]" value="{{ $student['temp_file_path'] }}">
+                                        <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_name]" value="{{ $student['temp_file_name'] }}">
+                                    @endif
+                                    <input type="file" form="send-marks-form" name="students[{{ $index }}][individual_file]" class="form-control form-control-sm">
                                 </td>
                                 <td class="text-center pe-4">
                                 <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
@@ -552,6 +566,15 @@
         const count = e.target.files.length;
         const display = document.getElementById('file-count');
         display.innerText = count > 0 ? ( count === 1 ? `${count} file selected` : `${count} files selected`) : "";
+    });
+
+    // ---------------
+    // Reset message button
+    // ---------------
+    const resetMessageBtn = document.getElementById('reset-message-btn');
+    resetMessageBtn.addEventListener('click', () => {
+        const defaultMessage = `Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]`;
+        textarea.value = defaultMessage;
     });
 </script>
 @endsection
