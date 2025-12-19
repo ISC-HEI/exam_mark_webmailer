@@ -19,15 +19,17 @@ class StudentMarkMail extends Mailable
     public $courseName;
     public $messageContent;
     protected $filePath;
+    protected $originalFileName;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($courseName, $messageContent, $filePath = null)
+    public function __construct($courseName, $messageContent, $filePath = null, $originalFileName = null)
     {
         $this->courseName = $courseName;
         $this->messageContent = Str::markdown($messageContent);
         $this->filePath = $filePath;
+        $this->originalFileName = $originalFileName;
     }
 
     /**
@@ -60,7 +62,7 @@ class StudentMarkMail extends Mailable
     {
         if ($this->filePath && file_exists(Storage::disk('public')->path($this->filePath))) {
             return [
-                Attachment::fromPath(Storage::disk('public')->path($this->filePath))
+                Attachment::fromPath(Storage::disk('public')->path($this->filePath))->as($this->originalFileName)
             ];
         }
         return [];

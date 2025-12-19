@@ -100,6 +100,7 @@ class MarksController extends Controller
                 if (isset($files[$index]['individual_file'])) {
                     $file = $files[$index]['individual_file'];
                     
+                    $originalName = $file->getClientOriginalName();
                     $path = $file->store('temp', 'public');
                     $tempFilePath = $path;
                 }
@@ -111,7 +112,7 @@ class MarksController extends Controller
                 );
                 
                 Mail::to($student['email'])->send(
-                    new StudentMarkMail($request->course_name, $message, $tempFilePath)
+                    new StudentMarkMail($request->course_name, $message, $tempFilePath, $originalName ?? null)
                 );
 
                 if ($tempFilePath && file_exists(Storage::disk('public')->path($tempFilePath))) {
@@ -165,6 +166,8 @@ class MarksController extends Controller
 
             if (isset($files[0]['individual_file'])) {
                 $file = $files[0]['individual_file'];
+
+                $originalName = $file->getClientOriginalName();
                 $path = $file->store('temp', 'public');
                 $tempFilePath = $path;
             }
@@ -176,7 +179,7 @@ class MarksController extends Controller
             );
 
             Mail::to($request->teacher_email)->send(
-                new StudentMarkMail($request->course_name, $message, $tempFilePath)
+                new StudentMarkMail($request->course_name, $message, $tempFilePath, $originalName ?? null)
             );
 
             if ($tempFilePath) {
