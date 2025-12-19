@@ -154,93 +154,140 @@
         </div>
 
         <div class="col-lg-8 col-xl-9">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white-prefer border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Students :</h5>
-                    
-                    <div class="d-flex align-items-center bg-white-prefer px-3 py-2 rounded-pill shadow-sm border">
-                        <h6 id="totalStudents" class="mb-0 text-muted small fw-bold text-uppercase me-2">
-                            Total Students
-                        </h6>
-                        <span id="student-counter" class="badge rounded-pill fs-6 fw-bold bg-primary">
-                        </span>
-                    </div>
+            <ul class="nav nav-pills bg-white-prefer p-2 rounded-top border shadow-sm mb-0" style="width: fit-content" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-students-btn" data-bs-toggle="pill" data-bs-target="#view-students" type="button" role="tab">
+                        <i class="bi bi-people me-2"></i>Students
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-stats-btn" data-bs-toggle="pill" data-bs-target="#view-stats" type="button" role="tab">
+                        <i class="bi bi-graph-up me-2"></i>Statistics
+                    </button>
+                </li>
+            </ul>
 
-                    <div class="d-flex gap-2">
-                        <button type="button" id="add-student-btn" class="btn border">
-                            <i class="bi bi-plus-lg text-success"></i> Add student
-                        </button>
-                        <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center border rounded px-2">
-                            @csrf
-                            <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0">
-                            <button type="submit" class="btn btn-sm btn-link text-decoration-none fw-bold">
-                                <i class="bi bi-upload"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                @if (count($students) >= 5)
-                <div id="search-container" class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white-prefer border-end-0">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        <input type="text" id="student-search" class="form-control border-start-0 ps-0" placeholder="Search by name, email or marks...">
-                    </div>
-                </div>
-                @endif
-                <div class="card-body p-0 table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
-                            <tr class="text-uppercase small text-muted">
-                                <th class="ps-4 py-3">Name</th>
-                                <th class="py-3">Email</th>
-                                <th class="text-center py-3">Mark</th>
-                                <th class="text-center py-3">Attachement</th>
-                                <th class="text-center pe-4 py-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($students as $index => $student)
-                            <tr>
-                                <td class="ps-4">
-                                    <input type="text" form="send-marks-form" name="students[{{ $index }}][name]" class="form-control border-0 bg-transparent fw-bold" value="{{ $student['name'] }}" placeholder="Nom">
-                                </td>
-                                <td>
-                                    <input type="email" form="send-marks-form" name="students[{{ $index }}][email]" class="form-control border-0 bg-transparent text-muted" value="{{ $student['email'] }}" placeholder="Email">
-                                </td>
-                                <td style="width: 120px;">
-                                    <input type="number" id="inputMark" form="send-marks-form" step="0.1" min="1" max="6" name="students[{{ $index }}][mark]" 
-                                           class="form-control text-center fw-bold mark-input border-0" 
-                                            value="{{ $student['mark'] }}">
-                                </td>
-                                <td>
-                                    @if(isset($student['temp_file_path']))
-                                        <div class="small text-success mb-1">
-                                            <i class="bi bi-file-check"></i> {{ $student['temp_file_name'] }}
-                                        </div>
-                                        <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_path]" value="{{ $student['temp_file_path'] }}">
-                                        <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_name]" value="{{ $student['temp_file_name'] }}">
-                                    @endif
-                                    <input type="file" form="send-marks-form" name="students[{{ $index }}][individual_file]" class="form-control form-control-sm">
-                                </td>
-                                <td class="text-center pe-4">
-                                <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                                </td>
-                            </tr>
-                            @endforeach
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="view-students" role="tabpanel">
+                    <div class="card border-0 shadow-sm h-100" style="border-top-left-radius: 0 !important">
+                        <div class="card-header bg-white-prefer border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                             
-                            @if(count($students) === 0)
-                            <tr class="empty">
-                                <td colspan="5" class="text-center py-5 text-muted">
-                                    No students in the list. Add them manually or import a CSV.
-                                </td>
-                            </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                            <div class="d-flex align-items-center bg-white-prefer px-3 py-2 rounded-pill shadow-sm border">
+                                <h6 id="totalStudents" class="mb-0 text-muted small fw-bold text-uppercase me-2">
+                                    Total Students
+                                </h6>
+                                <span id="student-counter" class="badge rounded-pill fs-6 fw-bold bg-primary">
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="button" id="add-student-btn" class="btn border">
+                                    <i class="bi bi-plus-lg text-success"></i> Add student
+                                </button>
+                                <form method="POST" action="{{ route('marks.load_csv') }}" enctype="multipart/form-data" class="d-flex align-items-center border rounded px-2">
+                                    @csrf
+                                    <input type="file" name="csv_file" accept=".csv" class="form-control form-control-sm border-0">
+                                    <button type="submit" class="btn btn-sm btn-link text-decoration-none fw-bold">
+                                        <i class="bi bi-upload"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        @if (count($students) >= 5)
+                        <div id="search-container" class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white-prefer border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" id="student-search" class="form-control border-start-0 ps-0" placeholder="Search by name, email or marks...">
+                            </div>
+                        </div>
+                        @endif
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr class="text-uppercase small text-muted">
+                                        <th class="ps-4 py-3">Name</th>
+                                        <th class="py-3">Email</th>
+                                        <th class="text-center py-3">Mark</th>
+                                        <th class="text-center py-3">Attachement</th>
+                                        <th class="text-center pe-4 py-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($students as $index => $student)
+                                    <tr>
+                                        <td class="ps-4">
+                                            <input type="text" form="send-marks-form" name="students[{{ $index }}][name]" class="form-control border-0 bg-transparent fw-bold" value="{{ $student['name'] }}" placeholder="Nom">
+                                        </td>
+                                        <td>
+                                            <input type="email" form="send-marks-form" name="students[{{ $index }}][email]" class="form-control border-0 bg-transparent text-muted" value="{{ $student['email'] }}" placeholder="Email">
+                                        </td>
+                                        <td style="width: 120px;">
+                                            <input type="number" id="inputMark" form="send-marks-form" step="0.1" min="1" max="6" name="students[{{ $index }}][mark]" 
+                                                class="form-control text-center fw-bold mark-input border-0" 
+                                                    value="{{ $student['mark'] }}">
+                                        </td>
+                                        <td>
+                                            @if(isset($student['temp_file_path']))
+                                                <div class="small text-success mb-1">
+                                                    <i class="bi bi-file-check"></i> {{ $student['temp_file_name'] }}
+                                                </div>
+                                                <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_path]" value="{{ $student['temp_file_path'] }}">
+                                                <input type="hidden" form="send-marks-form" name="students[{{ $index }}][temp_file_name]" value="{{ $student['temp_file_name'] }}">
+                                            @endif
+                                            <input type="file" form="send-marks-form" name="students[{{ $index }}][individual_file]" class="form-control form-control-sm">
+                                        </td>
+                                        <td class="text-center pe-4">
+                                        <button type="button" data-index="{{ $index }}" class="btn-remove-student btn btn-outline-danger btn-sm border-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    
+                                    @if(count($students) === 0)
+                                    <tr class="empty">
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            No students in the list. Add them manually or import a CSV.
+                                        </td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="view-stats" role="tabpanel">
+                    <div class="card border-0 shadow-sm p-4">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Exam Analysis</h5>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <small class="text-muted d-block">Class Average</small>
+                                    <span class="h4 fw-bold text-primary" id="stats-average">0.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <small class="text-muted d-block">Success Rate</small>
+                                    <span class="h4 fw-bold text-success" id="stats-success">0%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <small class="text-muted d-block">Best Mark</small>
+                                    <span class="h4 fw-bold" id="stats-best">0.0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="marksChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -701,5 +748,33 @@
         }
     };
     updateStudentCounter();
+
+    // --------------------
+    // Stats Calculation
+    // --------------------
+    const updateStatistics = () => {
+        const markInputs = document.querySelectorAll('.mark-input');
+        let marks = [];
+        
+        markInputs.forEach(input => {
+            const val = parseFloat(input.value);
+            if (!isNaN(val)) marks.push(val);
+        });
+
+        if (marks.length === 0) return;
+
+        const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
+        const best = Math.max(...marks);
+        const successCount = marks.filter(m => m >= 4.0).length;
+        const successRate = (successCount / marks.length) * 100;
+
+        document.getElementById('stats-average').innerText = avg.toFixed(2);
+        document.getElementById('stats-best').innerText = best.toFixed(1);
+        document.getElementById('stats-success').innerText = successRate.toFixed(0) + '%';
+    };
+
+    document.getElementById('pills-stats-tab').addEventListener('shown.bs.tab', () => {
+        updateStatistics();
+    });
 </script>
 @endsection
