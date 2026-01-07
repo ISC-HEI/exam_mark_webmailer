@@ -263,23 +263,29 @@
                     <div class="card border-0 shadow-sm p-4">
                         <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Exam Analysis</h5>
                         
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <div class="p-3 border rounded bg-light">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded bg-light-prefer">
                                     <small class="text-muted d-block">Class Average</small>
                                     <span class="h4 fw-bold text-primary" id="stats-average">0.0</span>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="p-3 border rounded bg-light">
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded bg-light-prefer">
                                     <small class="text-muted d-block">Success Rate</small>
                                     <span class="h4 fw-bold text-success" id="stats-success">0%</span>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="p-3 border rounded bg-light">
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded bg-light-prefer">
                                     <small class="text-muted d-block">Best Mark</small>
                                     <span class="h4 fw-bold" id="stats-best">0.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded bg-light-prefer">
+                                    <small class="text-muted d-block">Worst Mark</small>
+                                    <span class="h4 fw-bold" id="stats-worst">0.0</span>
                                 </div>
                             </div>
                         </div>
@@ -752,6 +758,11 @@
     // --------------------
     // Stats Calculation
     // --------------------
+    const spaStatsAverage = document.getElementById('stats-average');
+    const spaStatsBest = document.getElementById('stats-best');
+    const spaStatsWorst = document.getElementById('stats-worst');
+    const spaStatsSuccess = document.getElementById('stats-success');
+
     const updateStatistics = () => {
         const markInputs = document.querySelectorAll('.mark-input');
         let marks = [];
@@ -765,15 +776,17 @@
 
         const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
         const best = Math.max(...marks);
+        const worst = Math.min(...marks);
         const successCount = marks.filter(m => m >= 4.0).length;
         const successRate = (successCount / marks.length) * 100;
 
-        document.getElementById('stats-average').innerText = avg.toFixed(2);
-        document.getElementById('stats-best').innerText = best.toFixed(1);
-        document.getElementById('stats-success').innerText = successRate.toFixed(0) + '%';
+        spaStatsAverage.innerText = avg.toFixed(2);
+        spaStatsBest.innerText = best.toFixed(1);
+        spaStatsWorst.innerText = worst.toFixed(1);
+        spaStatsSuccess.innerText = successRate.toFixed(0) + '%';
     };
 
-    document.getElementById('pills-stats-tab').addEventListener('shown.bs.tab', () => {
+    document.getElementById('tab-stats-btn').addEventListener('click', () => {
         updateStatistics();
     });
 </script>
