@@ -108,14 +108,14 @@
                             </button>
                         </div>
                         <div id="variable-menu" class="list-group shadow-lg position-absolute d-none" style="z-index: 1000; min-width: 200px;">
-                            <button type="button" class="list-group-item list-group-item-action list-group-item-dark" data-var="[STUDENT_NAME]">Student's name</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[STUDENT_MARK]">Mark</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[COURSE_NAME]">Course name</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[EXAM_NAME]">Exam name</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[CLASS_AVERAGE]">Class average</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[MEDIAN]">Median</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[SUCCESS_RATE]">Success rate</button>
-                            <button type="button" class="list-group-item list-group-item-action" data-var="[MY_EMAIL]">My email</button>
+                            <button type="button" class="list-group-item list-group-item-action list-group-item-dark" data-var="STUDENT_NAME">Student's name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="STUDENT_MARK">Mark</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="COURSE_NAME">Course name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="EXAM_NAME">Exam name</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="CLASS_AVERAGE">Class average</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="MEDIAN">Median</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="SUCCESS_RATE">Success rate</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="MY_EMAIL">My email</button>
                         </div>
                         <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 160px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>
                         
@@ -312,10 +312,98 @@
 @section("script")
 <script>
     // --------------------
+    // Constants
+    // --------------------
+    const SUCCESS_MARK = 4.0;
+    const SUCCESS_RATE = 60; // in percent
+
+    const TIMER_BEFORE_SEND = 5; // seconds
+
+    const INCOGNITO_BLUR = 9; // px
+
+    const DEFAULT_MESSAGE = `Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]`;
+
+    // Chart constants
+    const CHART = {
+        ANIMATION_DURATION: 2000,
+        BUBBLE_SIZE: 8,
+        COLOR: {
+            GREY_DEFAULT: '#f0f0f0',
+            WEIGHT_100: '#f5f5f5',
+            WEIGHT_200: '#eceff1',
+            WEIGHT_300: '#cfd8dc',
+            WEIGHT_500: '#90a4ae',
+            WEIGHT_700: '#546e7a',
+            WEIGHT_900: '#263238'
+        }
+    }
+
+    // Variables constants
+    const VARIABLES = {
+        DEFAULT_ACTIVE_INDEX: 0,
+        PREFIX: "[",
+        SUFFIX: "]"
+    }
+
+    // DOM elements
+    const DOM = {
+        // Forms ans global containers
+        form: document.getElementById('send-marks-form'),
+        tableBody: document.querySelector('table tbody'),
+        container: document.getElementById('mainContainer'),
+        loadingOverlay: document.getElementById("loading-overlay"),
+        errorContainer: document.querySelector('.alert-danger'),
+        studentLines: document.querySelectorAll(".studentLine"),
+
+        // Main inputs
+        inputCourse: document.querySelector('input[name="course_name"]'),
+        inputExam: document.querySelector('input[name="exam_name"]'),
+        textareaMessage: document.querySelector('textarea[name="message"]'),
+        inputFormAction: document.getElementById('form-action-input'),
+        inputRemoveIndex: document.getElementById('remove-index-input'),
+        inputMarks: document.querySelectorAll(".mark-input"),
+        fileInput: document.getElementById('fileInput'),
+
+        // Action buttons
+        btnSend: document.querySelector('button[form="send-marks-form"]'),
+        btnSendTestEmail: document.getElementById('send-test-email'),
+        btnAddStudent: document.getElementById('add-student-btn'),
+        btnResetMessage: document.getElementById('reset-message-btn'),
+        btnIncognito: document.getElementById('btn-incognito'),
+        btnThemeToggle: document.getElementById('theme-toggle'),
+        btnRemoveStudents: document.querySelectorAll('.btn-remove-student'),
+
+        // Confirmation modal
+        modalConfirm: document.getElementById('confirmSendModal'),
+        btnFinalConfirm: document.getElementById('final-confirm-send'),
+        summaryCourse: document.getElementById('summary-course'),
+        summaryExam: document.getElementById('summary-exam'),
+        summaryCount: document.getElementById('summary-count'),
+
+        // Stats and research
+        searchInput: document.getElementById('student-search'),
+        studentCounter: document.getElementById('student-counter'),
+        totalStudentsLabel: document.getElementById('totalStudents'),
+        btnStatsTab: document.getElementById('tab-stats-btn'),
+        btnStudentsTab: document.getElementById('tab-students-btn'),
+        spaStatsAverage: document.getElementById('stats-average'),
+        spaStatsExtreme: document.getElementById('stats-extreme'),
+        spaStatsSuccess: document.getElementById('stats-success'),
+        spaStatsMedian: document.getElementById('stats-median'),
+        filesCount: document.getElementById('file-count'),
+
+        // Variables menu
+        variableMenu: document.getElementById('variable-menu'),
+        variableItems: document.querySelectorAll('#variable-menu .list-group-item'),
+
+        // Charts
+        ctxBar: document.getElementById('marksChartBar'),
+        ctxBubble: document.getElementById('marksChartBubble'),
+    }
+
+    // --------------------
     // Update Marks input
     // --------------------
-    const inputMarks = document.querySelectorAll("#inputMark")
-
     const updateMarkInputColor = (input) => {
         const mark = parseFloat(input.value);
         
@@ -323,14 +411,14 @@
         const failureClasses = ['text-danger', 'bg-danger-subtle'];
         input.classList.remove(...successClasses, ...failureClasses);
         
-        if (!isNaN(mark) && mark >= 4.0) {
+        if (!isNaN(mark) && mark >= SUCCESS_MARK) {
             input.classList.add(...successClasses);
-        } else if (!isNaN(mark) && mark < 4.0) {
+        } else if (!isNaN(mark) && mark < SUCCESS_MARK) {
             input.classList.add(...failureClasses);
         }
     }
 
-    inputMarks.forEach(inp => {
+    DOM.inputMarks.forEach(inp => {
         updateMarkInputColor(inp)
 
         inp.addEventListener("input", () => {updateMarkInputColor(inp)})
@@ -339,14 +427,12 @@
     // --------------------
     // Add and Remove student
     // --------------------
-    const addStudentBtn = document.getElementById('add-student-btn');
-    const removeIndexInput = document.getElementById('remove-index-input');
-    const removeButtons = document.querySelectorAll('.btn-remove-student');
+    const addStudentBtn = DOM.btnAddStudent;
 
-    const loadingOverlay = document.getElementById("loading-overlay")
+    const loadingOverlay = DOM.loadingOverlay;
 
-    const sendMarksForm = document.getElementById('send-marks-form');
-    const formActionInput = document.getElementById('form-action-input');
+    const sendMarksForm = DOM.form;
+    const formActionInput = DOM.inputFormAction;
     
     if (addStudentBtn) {
         addStudentBtn.addEventListener('click', () => {
@@ -359,13 +445,13 @@
     }
 
 
-    removeButtons.forEach(btn => {
+    DOM.btnRemoveStudents.forEach(btn => {
         btn.addEventListener('click', function() {
             const index = this.getAttribute('data-index');
             
             formActionInput.value = 'remove_student';
             
-            removeIndexInput.value = index;
+            DOM.inputRemoveIndex.value = index;
 
             sendMarksForm.action = '{{ route('marks.remove_student') }}';
 
@@ -373,7 +459,7 @@
         });
     });
 
-    const sendMarksBtn = document.querySelector('button[form="send-marks-form"]');
+    const sendMarksBtn = DOM.btnSend;
 
     if (sendMarksBtn) {
         sendMarksBtn.addEventListener('click', () => {
@@ -388,36 +474,38 @@
     // --------------------
     document.addEventListener('keydown', function(e) {
         if (e.altKey && e.key === 'Enter') {
-            const sendBtn = document.querySelector('button[form="send-marks-form"]');
-            if (sendBtn) sendBtn.click();
+            if (DOM.btnSend) DOM.btnSend.click();
         }
         if (e.altKey && (e.key === 'a' || e.key === 'A')) {
             e.preventDefault();
-            const addBtn = document.getElementById('add-student-btn');
+            const addBtn = DOM.btnAddStudent;
             if (addBtn) addBtn.click();
         }
         if (e.altKey && (e.key === 'm' || e.key === 'M')) {
             e.preventDefault();
-            document.querySelector('textarea[name="message"]').focus();
+            DOM.textareaMessage.focus();
         }
         if (e.altKey && (e.key === 'r' || e.key === 'R')) {
             e.preventDefault();
-            document.getElementById('reset-message-btn').click();
+            DOM.btnResetMessage.click();
+        }
+        if (e.altKey && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            DOM.btnStudentsTab.classList.contains('active') ? DOM.btnStatsTab.click() : DOM.btnStudentsTab.click(); 
         }
     });
 
     // --------------------
     // Confirm modal and Backend Check
     // --------------------
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
-    const finalConfirmBtn = document.getElementById('final-confirm-send');
+    const confirmModal = new bootstrap.Modal(DOM.modalConfirm);
+    const finalConfirmBtn = DOM.btnFinalConfirm;
 
     if (sendMarksBtn) {
         sendMarksBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
-            const errorContainer = document.querySelector('.alert-danger');
-            if (errorContainer) errorContainer.remove();
+            if (DOM.errorContainer) DOM.errorContainer.remove();
 
             if (!sendMarksForm.checkValidity()) {
                 sendMarksForm.reportValidity();
@@ -441,12 +529,12 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    document.getElementById('summary-course').innerText = document.querySelector('input[name="course_name"]').value;
-                    document.getElementById('summary-exam').innerText = document.querySelector('input[name="exam_name"]').value;
-                    document.getElementById('summary-count').innerText = document.querySelectorAll('.btn-remove-student').length;
+                    DOM.summaryCourse.innerText = DOM.inputCourse.value;
+                    DOM.summaryExam.innerText = DOM.inputExam.value;
+                    DOM.summaryCount.innerText = DOM.btnRemoveStudents.length;
 
-                    let timeLeft = 5;
-                    const originalText = "Confirm the sending";
+                    let timeLeft = TIMER_BEFORE_SEND;
+                    const originalText = finalConfirmBtn.innerText;
                     
                     finalConfirmBtn.disabled = true;
                     finalConfirmBtn.innerText = `${originalText} (${timeLeft}s)`;
@@ -465,7 +553,7 @@
                         }
                     }, 1000);
 
-                    document.getElementById('confirmSendModal').addEventListener('hidden.bs.modal', () => {
+                    DOM.modalConfirm.addEventListener('hidden.bs.modal', () => {
                         clearInterval(timer);
                     }, { once: true });
                 } else {
@@ -490,8 +578,7 @@
         });
         errorHtml += '</ul></div>';
         
-        const container = document.querySelector('.container-fluid');
-        container.insertAdjacentHTML('afterbegin', errorHtml);
+        DOM.container.insertAdjacentHTML('afterbegin', errorHtml);
         window.scrollTo(0, 0);
     }
 
@@ -518,9 +605,7 @@
     // ---------------
     // Send test email
     // ---------------
-    const sendTestEmail = document.getElementById("send-test-email")
-
-    sendTestEmail.addEventListener("click", () => {
+    DOM.btnSendTestEmail.addEventListener("click", () => {
         formActionInput.value = 'send';
         loadingOverlay.classList.remove("d-none");
         loadingOverlay.classList.add("d-flex");
@@ -532,10 +617,10 @@
     // ---------------
     // Variables choice
     // ---------------
-    const textarea = document.querySelector('textarea[name="message"]');
-    const menu = document.getElementById('variable-menu');
-    const items = menu.querySelectorAll('.list-group-item');
-    let activeIndex = 0;
+    const textarea = DOM.textareaMessage;
+    const menu = DOM.variableMenu;
+    const items = DOM.variableItems
+    let activeIndex = VARIABLES.DEFAULT_ACTIVE_INDEX;
 
     const insertVariable = (variable) => {
         const start = textarea.selectionStart;
@@ -545,9 +630,9 @@
         const before = text.substring(0, start - 1);
         const after = text.substring(end);
         
-        textarea.value = before + variable + after;
+        textarea.value = before + `${VARIABLES.PREFIX}${variable}${VARIABLES.SUFFIX}` + after;
         
-        const newCursorPos = start - 1 + variable.length;
+        const newCursorPos = start + variable.length + 1;
         textarea.setSelectionRange(newCursorPos, newCursorPos);
         
         hideMenu();
@@ -564,7 +649,7 @@
         const cursorPos = textarea.selectionStart;
         const lastChar = value.substring(cursorPos - 1, cursorPos);
 
-        if (lastChar === '[') {
+        if (lastChar === VARIABLES.PREFIX) {
             const coordinates = getCaretCoordinates(textarea, cursorPos);
             
             menu.style.top = (textarea.offsetTop + coordinates.top + 20) + 'px';
@@ -643,19 +728,17 @@
     // ---------------
     // File input - global attachment
     // ---------------
-    document.getElementById('fileInput').addEventListener('change', function(e) {
+    DOM.fileInput.addEventListener('change', function(e) {
         const count = e.target.files.length;
-        const display = document.getElementById('file-count');
+        const display = DOM.fileCount;
         display.innerText = count > 0 ? ( count === 1 ? `${count} file selected` : `${count} files selected`) : "";
     });
 
     // ---------------
     // Reset message button
     // ---------------
-    const resetMessageBtn = document.getElementById('reset-message-btn');
-    resetMessageBtn.addEventListener('click', () => {
-        const defaultMessage = `Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]`;
-        textarea.value = defaultMessage;
+    DOM.btnResetMessage.addEventListener('click', () => {
+        textarea.value = DEFAULT_MESSAGE;
     });
 
     // ---------------
@@ -671,7 +754,7 @@
 
     setTheme(storedTheme);
 
-    const themeBtn = document.getElementById('theme-toggle');
+    const themeBtn = DOM.btnThemeToggle;
     const themeIconSun = themeBtn.querySelector('.bi-sun-fill');
     const themeIconMoon = themeBtn.querySelector('.bi-moon-stars-fill');
 
@@ -697,9 +780,9 @@
     // ---------------
     // Search students
     // ---------------
-    const searchInput = document.getElementById('student-search');
-    const tableBody = document.querySelector('table tbody');
-    const totalStudents = document.getElementById('totalStudents');
+    const searchInput = DOM.searchInput;
+    const tableBody = DOM.tableBody;
+    const totalStudents = DOM.totalStudentsLabel;
     const originalTotalStudentsText = totalStudents.innerText;
 
     if (searchInput) {
@@ -747,7 +830,7 @@
     // --------------------
     // Total students counter
     // --------------------
-    const studentCounter = document.getElementById('student-counter');
+    const studentCounter = DOM.studentCounter;
 
     const updateStudentCounter = () => {
         const allStudents = tableBody.querySelectorAll('tr:not([style*="display: none"]):not(.no-result):not(.empty)');
@@ -765,16 +848,10 @@
     // --------------------
     // Stats Calculation
     // --------------------
-    const spaStatsAverage = document.getElementById('stats-average');
-    const spaStatsExtreme = document.getElementById('stats-extreme');
-    const spaStatsSuccess = document.getElementById('stats-success');
-    const spaStatsMedian = document.getElementById('stats-median');
-
     const updateStatistics = () => {
-        const markInputs = document.querySelectorAll('.mark-input');
         let marks = [];
         
-        markInputs.forEach(input => {
+        DOM.inputMarks.forEach(input => {
             const val = parseFloat(input.value);
             if (!isNaN(val)) marks.push(val);
         });
@@ -784,7 +861,7 @@
         const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
         const best = Math.max(...marks);
         const worst = Math.min(...marks);
-        const successCount = marks.filter(m => m >= 4.0).length;
+        const successCount = marks.filter(m => m >= SUCCESS_MARK).length;
         const successRate = (successCount / marks.length) * 100;
         const median = (() => {
             const sorted = [...marks].sort((a, b) => a - b);
@@ -792,49 +869,46 @@
             return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
         })();
 
-        spaStatsAverage.innerText = avg.toFixed(2);
-        spaStatsExtreme.innerText = worst.toFixed(1) + " - " + best.toFixed(1);
-        spaStatsSuccess.innerText = successRate.toFixed(0) + '%';
-        spaStatsMedian.innerText = median.toFixed(2);
+        DOM.spaStatsAverage.innerText = avg.toFixed(2);
+        DOM.spaStatsExtreme.innerText = worst.toFixed(1) + " - " + best.toFixed(1);
+        DOM.spaStatsSuccess.innerText = successRate.toFixed(0) + '%';
+        DOM.spaStatsMedian.innerText = median.toFixed(2);
 
-        if (successRate >= 60) {
-            spaStatsSuccess.classList.remove('text-danger');
-            spaStatsSuccess.classList.add('text-success');
+        if (successRate >= SUCCESS_RATE) {
+            DOM.spaStatsSuccess.classList.remove('text-danger');
+            DOM.spaStatsSuccess.classList.add('text-success');
         } else {
-            spaStatsSuccess.classList.remove('text-success');
-            spaStatsSuccess.classList.add('text-danger');
+            DOM.spaStatsSuccess.classList.remove('text-success');
+            DOM.spaStatsSuccess.classList.add('text-danger');
         }
     };
 
-    document.getElementById('tab-stats-btn').addEventListener('click', () => {
+    DOM.btnStatsTab.addEventListener('click', () => {
         updateStatistics();
     });
 
     // --------------------
     // Marks Chart
     // --------------------
-    const ctxBar = document.getElementById('marksChartBar');
-    const ctxBubble = document.getElementById('marksChartBubble');
-
     const labelsBar = ["1.0-1.9", "2.0-2.9", "3.0-3.9", "4.0-4.9", "5.0-5.9", "6.0"];
     function colorize() {
-        return (ctxBar) => {
-                    if (!ctxBar.parsed) return '#f0f0f0';
-                    const value = ctxBar.parsed.y; 
+        return (content) => {
+                    if (!content.parsed) return CHART.COLOR.GREY_DEFAULT;
+                    const value = content.parsed.y; 
 
-                    if (value < 2.0) return '#f5f5f5';
-                    if (value < 3.0) return '#eceff1';
-                    if (value < 4.0) return '#cfd8dc'; 
-                    if (value < 5.0) return '#90a4ae';  
-                    if (value < 6.0) return '#546e7a';
-                    return '#263238';
+                    if (value < 2.0) return CHART.COLOR.WEIGHT_100;
+                    if (value < 3.0) return CHART.COLOR.WEIGHT_200;
+                    if (value < 4.0) return CHART.COLOR.WEIGHT_300; 
+                    if (value < 5.0) return CHART.COLOR.WEIGHT_500;  
+                    if (value < 6.0) return CHART.COLOR.WEIGHT_700;
+                    return CHART.COLOR.WEIGHT_900;
                 }
     }
 
     let chartBar = null;
     let chartBubble = null;
 
-    document.getElementById('tab-stats-btn').addEventListener('click', () => {
+    DOM.btnStatsTab.addEventListener('click', () => {
         if (chartBar) {
             chartBar.destroy();
         }
@@ -845,7 +919,7 @@
         // Bar chart
         const numbersOfStudentsEachRange = [];
         labelsBar.forEach((label) => {
-            const rangeStudent = Array.from(document.querySelectorAll('.mark-input')).filter(input => {
+            const rangeStudent = Array.from(DOM.inputMarks).filter(input => {
                 const mark = parseFloat(input.value);
                 if (label === "6.0") {
                     return mark === 6.0;
@@ -877,7 +951,7 @@
                 animation: {
                     x: {
                         from: 0,
-                        duration: 2000
+                        duration: CHART.ANIMATION_DURATION
                     },
                 },
             }
@@ -887,16 +961,16 @@
         const dataBubble = {
             datasets: [{
                 label: 'Students Marks',
-                data: Array.from(document.querySelectorAll('.mark-input')).map((input, index) => {
+                data: Array.from(DOM.inputMarks).map((input, index) => {
                     const mark = parseFloat(input.value);
                     return {
                         x: index + 1,
                         y: mark,
-                        r: 8,
+                        r: CHART.BUBBLE_SIZE,
                     };
                 }),
-                backgroundColor: '#90a4ae',
-                borderColor: '#546e7a',
+                backgroundColor: CHART.COLOR.WEIGHT_500,
+                borderColor: CHART.COLOR.WEIGHT_700,
             }]
         }
         const chartConfigBubble = {
@@ -913,33 +987,31 @@
                 animation: {
                     x: {
                         from: 0,
-                        duration: 2000
+                        duration: CHART.ANIMATION_DURATION
                     },
                 },
             }
         };
 
-        chartBubble = new Chart(ctxBubble, chartConfigBubble);
-        chartBar = new Chart(ctxBar, chartConfigBar);
+        chartBubble = new Chart(DOM.ctxBubble, chartConfigBubble);
+        chartBar = new Chart(DOM.ctxBar, chartConfigBar);
     });
     // --------------------
     // Incognito mode
     // --------------------
-    const incognitoBtn = document.getElementById('btn-incognito');
-    incognitoBtn.addEventListener("click", toogleIncognitoMode);
+    DOM.btnIncognito.addEventListener("click", toogleIncognitoMode);
 
     function toogleIncognitoMode() {
-        document.querySelectorAll(".studentLine").forEach(line => {
+        DOM.studentLines.forEach(line => {
             const nameInput = line.querySelector("input[name*='[name']");
             const emailInput = line.querySelector("input[name*='[email']");
             const attachmentInput = line.querySelector("input[type='file']");
 
-            nameInput.style.filter === "" ? nameInput.style.filter = "blur(9px)" : nameInput.style.filter = "";
-            emailInput.style.filter === "" ? emailInput.style.filter = "blur(9px)" : emailInput.style.filter = "";
-            attachmentInput.style.filter === "" ? attachmentInput.style.filter = "blur(9px)" : attachmentInput.style.filter = "";
+            nameInput.style.filter === "" ? nameInput.style.filter = `blur(${INCOGNITO_BLUR}px)` : nameInput.style.filter = "";
+            emailInput.style.filter === "" ? emailInput.style.filter = `blur(${INCOGNITO_BLUR}px)` : emailInput.style.filter = "";
+            attachmentInput.style.filter === "" ? attachmentInput.style.filter = `blur(${INCOGNITO_BLUR}px)` : attachmentInput.style.filter = "";
         })
-        incognitoBtn.classList.toggle("btn-secondary")
+        DOM.btnIncognito.classList.toggle("btn-secondary")
     }
-    
 </script>
 @endsection

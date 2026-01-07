@@ -95,6 +95,7 @@ Here is a list of available variables
 | [COURSE_NAME]   | The name of the course       |
 | [EXAM_NAME]     | The name of the exam         |
 | [CLASS_AVERAGE] | The class average            |
+| [MEDIAN]        | The median of the exam       |
 | [SUCCESS_RATE]  | The success rate of the exam |
 | [MY_EMAIL]      | Your email (teacher)         |
 
@@ -107,6 +108,7 @@ Here is a list of available shortcuts
 | ALT + A      | Add a student          |
 | ALT + M      | Focus the message area |
 | ALT + R      | Reset the message      |
+| ALT + S      | Toggle between the tabs|
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.
