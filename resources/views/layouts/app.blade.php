@@ -106,6 +106,25 @@
   [data-bs-theme="dark"] .bg-white-prefer {
     background-color: #212529;
   }
+  .chart-container {
+    gap: 50px;
+    padding: 20px;
+  }
+
+  .chart-wrapper {
+    position: relative; 
+    width: 80%;
+    max-width: 800px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  [data-bs-theme="dark"] .chart-wrapper {
+    background: #303337;
+  }
+
 </style>
 <body>
     <div>

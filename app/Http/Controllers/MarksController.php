@@ -141,10 +141,30 @@ class MarksController extends Controller
         return round($successRate, 0) . "%";
     }
 
-    private function replaceVariables($message, $student, $courseName, $examName, $average, $teacherEmail, $successRate) {
+    private function getMedian($students) {
+        $marks = array_filter(array_column($students, 'mark'), function($value) {
+            return $value !== null && $value !== '';
+        });
+
+        if (count($marks) === 0) {
+            return 0;
+        }
+
+        sort($marks);
+        $count = count($marks);
+        $middleIndex = (int) floor($count / 2);
+        if ($count % 2) {
+            $median = $marks[$middleIndex];
+        } else {
+            $median = ($marks[$middleIndex - 1] + $marks[$middleIndex]) / 2;
+        }
+        return round($median, 1);
+    }
+
+    private function replaceVariables($message, $student, $courseName, $examName, $average, $teacherEmail, $successRate, $median) {
         return str_replace(
-            ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]', '[SUCCESS_RATE]'],
-            [$student['name'], $courseName, $examName, $student['mark'], $average, $teacherEmail, $successRate],
+            ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]', '[SUCCESS_RATE]', '[MEDIAN]'],
+            [$student['name'], $courseName, $examName, $student['mark'], $average, $teacherEmail, $successRate, $median],
             $message
         );
     }
@@ -206,6 +226,7 @@ class MarksController extends Controller
         $files = $request->file('students');
         $average = $this->getClassAverage($request->students);
         $successRate = $this->getSuccessRate($request->students);
+        $median = $this->getMedian($request->students);
 
         $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
         $missingVariables = [];
@@ -244,7 +265,8 @@ class MarksController extends Controller
                 $request->exam_name,
                 $average,
                 $request->teacher_email,
-                $successRate
+                $successRate,
+                $median
             );
 
             $recipient = $toTeacher ? $request->teacher_email : $student['email'];

@@ -113,6 +113,7 @@
                             <button type="button" class="list-group-item list-group-item-action" data-var="[COURSE_NAME]">Course name</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[EXAM_NAME]">Exam name</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[CLASS_AVERAGE]">Class average</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[MEDIAN]">Median</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[SUCCESS_RATE]">Success rate</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[MY_EMAIL]">My email</button>
                         </div>
@@ -273,25 +274,30 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="p-3 border rounded bg-light-prefer">
+                                    <small class="text-muted d-block">Median</small>
+                                    <span class="h4 fw-bold text-primary" id="stats-median">0.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded bg-light-prefer">
                                     <small class="text-muted d-block">Success Rate</small>
-                                    <span class="h4 fw-bold text-success" id="stats-success">0%</span>
+                                    <span class="h4 fw-bold" id="stats-success">0%</span>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="p-3 border rounded bg-light-prefer">
-                                    <small class="text-muted d-block">Best Mark</small>
-                                    <span class="h4 fw-bold" id="stats-best">0.0</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 border rounded bg-light-prefer">
-                                    <small class="text-muted d-block">Worst Mark</small>
-                                    <span class="h4 fw-bold" id="stats-worst">0.0</span>
+                                    <small class="text-muted d-block">Extreme marks</small>
+                                    <span class="h4 fw-bold text-secondary" id="stats-extreme">0.0 - 0.0</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="w-75">
-                            <canvas id="marksChart"></canvas>
+                        <div class="chart-container d-flex flex-column align-items-center w-100">
+                            <div class="chart-wrapper">
+                                <canvas id="marksChartBar"></canvas>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="marksChartBubble"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -757,9 +763,9 @@
     // Stats Calculation
     // --------------------
     const spaStatsAverage = document.getElementById('stats-average');
-    const spaStatsBest = document.getElementById('stats-best');
-    const spaStatsWorst = document.getElementById('stats-worst');
+    const spaStatsExtreme = document.getElementById('stats-extreme');
     const spaStatsSuccess = document.getElementById('stats-success');
+    const spaStatsMedian = document.getElementById('stats-median');
 
     const updateStatistics = () => {
         const markInputs = document.querySelectorAll('.mark-input');
@@ -777,11 +783,24 @@
         const worst = Math.min(...marks);
         const successCount = marks.filter(m => m >= 4.0).length;
         const successRate = (successCount / marks.length) * 100;
+        const median = (() => {
+            const sorted = [...marks].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        })();
 
         spaStatsAverage.innerText = avg.toFixed(2);
-        spaStatsBest.innerText = best.toFixed(1);
-        spaStatsWorst.innerText = worst.toFixed(1);
+        spaStatsExtreme.innerText = worst.toFixed(1) + " - " + best.toFixed(1);
         spaStatsSuccess.innerText = successRate.toFixed(0) + '%';
+        spaStatsMedian.innerText = median.toFixed(2);
+
+        if (successRate >= 60) {
+            spaStatsSuccess.classList.remove('text-danger');
+            spaStatsSuccess.classList.add('text-success');
+        } else {
+            spaStatsSuccess.classList.remove('text-success');
+            spaStatsSuccess.classList.add('text-danger');
+        }
     };
 
     document.getElementById('tab-stats-btn').addEventListener('click', () => {
@@ -791,12 +810,14 @@
     // --------------------
     // Marks Chart
     // --------------------
-    const ctx = document.getElementById('marksChart');
-    const labels = ["1.0-1.9", "2.0-2.9", "3.0-3.9", "4.0-4.9", "5.0-5.9", "6.0"];
+    const ctxBar = document.getElementById('marksChartBar');
+    const ctxBubble = document.getElementById('marksChartBubble');
+
+    const labelsBar = ["1.0-1.9", "2.0-2.9", "3.0-3.9", "4.0-4.9", "5.0-5.9", "6.0"];
     function colorize() {
-        return (ctx) => {
-                    if (!ctx.parsed) return '#f0f0f0';
-                    const value = ctx.parsed.y; 
+        return (ctxBar) => {
+                    if (!ctxBar.parsed) return '#f0f0f0';
+                    const value = ctxBar.parsed.y; 
 
                     if (value < 2.0) return '#f5f5f5';
                     if (value < 3.0) return '#eceff1';
@@ -807,18 +828,20 @@
                 }
     }
 
-    let delayed = false; 
-    let myChart = null;
+    let chartBar = null;
+    let chartBubble = null;
 
     document.getElementById('tab-stats-btn').addEventListener('click', () => {
-        if (myChart) {
-            myChart.destroy();
+        if (chartBar) {
+            chartBar.destroy();
         }
-        
-        delayed = false; 
+        if (chartBubble) {
+            chartBubble.destroy();
+        }
 
+        // Bar chart
         const numbersOfStudentsEachRange = [];
-        labels.forEach((label) => {
+        labelsBar.forEach((label) => {
             const rangeStudent = Array.from(document.querySelectorAll('.mark-input')).filter(input => {
                 const mark = parseFloat(input.value);
                 if (label === "6.0") {
@@ -830,8 +853,8 @@
             }).length;
             numbersOfStudentsEachRange.push(rangeStudent);
         })
-        const data = {
-            labels: labels,
+        const dataBar = {
+            labels: labelsBar,
             datasets: [{
                 label: 'Number of Students',
                 data: numbersOfStudentsEachRange,
@@ -839,15 +862,14 @@
                 borderColor: 'transparent',
             }]
         }
-        const chartConfig = {
+        const chartConfigBar = {
             type: 'bar',
-            data: data,
+            data: dataBar,
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 plugins: {
-                    legend: { position: 'right' },
-                    title: { display: true, text: 'Marks Distribution' },
+                    title: { display: true, text: 'Marks Distribution bar' },
                 },
                 animation: {
                     x: {
@@ -858,7 +880,46 @@
             }
         };
 
-        myChart = new Chart(ctx, chartConfig);
+        // Bubble chart
+        const dataBubble = {
+            datasets: [{
+                label: 'Students Marks',
+                data: Array.from(document.querySelectorAll('.mark-input')).map((input, index) => {
+                    const mark = parseFloat(input.value);
+                    return {
+                        x: index + 1,
+                        y: mark,
+                        r: 8,
+                    };
+                }),
+                backgroundColor: '#90a4ae',
+                borderColor: '#546e7a',
+            }]
+        }
+        const chartConfigBubble = {
+            type: 'bubble',
+            data: dataBubble,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Marks Distribution bubble' },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                animation: {
+                    x: {
+                        from: 0,
+                        duration: 2000
+                    },
+                },
+            }
+        };
+
+        chartBubble = new Chart(ctxBubble, chartConfigBubble);
+        chartBar = new Chart(ctxBar, chartConfigBar);
     });
+
+    
 </script>
 @endsection
