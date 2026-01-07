@@ -793,7 +793,6 @@
     // --------------------
     const ctx = document.getElementById('marksChart');
     const labels = ["1.0-1.9", "2.0-2.9", "3.0-3.9", "4.0-4.9", "5.0-5.9", "6.0"];
-
     function colorize() {
         return (ctx) => {
                     if (!ctx.parsed) return '#f0f0f0';
@@ -808,8 +807,16 @@
                 }
     }
 
+    let delayed = false; 
+    let myChart = null;
+
     document.getElementById('tab-stats-btn').addEventListener('click', () => {
-        ctx.innerHTML = '';
+        if (myChart) {
+            myChart.destroy();
+        }
+        
+        delayed = false; 
+
         const numbersOfStudentsEachRange = [];
         labels.forEach((label) => {
             const rangeStudent = Array.from(document.querySelectorAll('.mark-input')).filter(input => {
@@ -837,25 +844,21 @@
             data: data,
             options: {
                 indexAxis: 'y',
-                elements: {
-                    bar: {
-                        borderWidth: 2,
-                    },
-                },
                 responsive: true,
                 plugins: {
-                    legend: {
-                        position: 'right',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Marks Distribution',
+                    legend: { position: 'right' },
+                    title: { display: true, text: 'Marks Distribution' },
+                },
+                animation: {
+                    x: {
+                        from: 0,
+                        duration: 2000
                     },
                 },
             }
-        }
+        };
 
-        new Chart(ctx, chartConfig);
+        myChart = new Chart(ctx, chartConfig);
     });
 </script>
 @endsection
