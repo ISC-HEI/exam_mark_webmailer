@@ -32,6 +32,7 @@
 - Supports Markdown formatting.
 - Many shortcuts for fast editing.
 - search bar from 5 students.
+- Page for the statistics of the exam.
 
 ## Installation
 Clone the git directory
@@ -87,14 +88,15 @@ docker run -p 8000:8000 exam-mark-webmailer:1
 
 ### Available Variables
 Here is a list of available variables
-|   **Variable**  |     **Description**     |
-|:---------------:|:-----------------------:|
-| [STUDENT_NAME]  | The name of the student |
-| [STUDENT_MARK]  | The mark of the student |
-| [COURSE_NAME]   | The name of the course  |
-| [EXAM_NAME]     | The name of the exam    |
-| [CLASS_AVERAGE] | The class average       |
-| [MY_EMAIL]      | Your email (teacher)    |
+|   **Variable**  |        **Description**       |
+|:---------------:|:----------------------------:|
+| [STUDENT_NAME]  | The name of the student      |
+| [STUDENT_MARK]  | The mark of the student      |
+| [COURSE_NAME]   | The name of the course       |
+| [EXAM_NAME]     | The name of the exam         |
+| [CLASS_AVERAGE] | The class average            |
+| [SUCCESS_RATE]  | The success rate of the exam |
+| [MY_EMAIL]      | Your email (teacher)         |
 
 ### Available Shortcuts
 Here is a list of available shortcuts

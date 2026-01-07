@@ -113,6 +113,7 @@
                             <button type="button" class="list-group-item list-group-item-action" data-var="[COURSE_NAME]">Course name</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[EXAM_NAME]">Exam name</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[CLASS_AVERAGE]">Class average</button>
+                            <button type="button" class="list-group-item list-group-item-action" data-var="[SUCCESS_RATE]">Success rate</button>
                             <button type="button" class="list-group-item list-group-item-action" data-var="[MY_EMAIL]">My email</button>
                         </div>
                         <textarea form="send-marks-form" name="message" class="form-control bg-secondary text-white border-0 flex-grow-1" style="min-height: 160px; font-family: monospace; font-size: 0.85rem;">{{ old('message', session('message', "Cher [STUDENT_NAME],\n\nVoici votre note pour l'examen [EXAM_NAME] : **[STUDENT_MARK]**\n\nEn cas de question merci de contacter: [MY_MAIL]")) }}</textarea>

@@ -120,10 +120,31 @@ class MarksController extends Controller
         return round($average, 2);
     }
 
-    private function replaceVariables($message, $student, $courseName, $examName, $average, $teacherEmail) {
+    private function getSuccessRate($students) {
+        $marks = array_filter(array_column($students, 'mark'), function($value) {
+            return $value !== null && $value !== '';
+        });
+
+        if (count($marks) === 0) {
+            return 0;
+        }
+
+        $passingMarksList = array_filter($marks, function($value) {
+            return is_numeric($value) && $value >= 4.0;
+        });
+
+        $totalCount = count($marks);
+        $passingCount = count($passingMarksList);
+        
+        $successRate = ($passingCount / $totalCount) * 100;
+
+        return round($successRate, 0) . "%";
+    }
+
+    private function replaceVariables($message, $student, $courseName, $examName, $average, $teacherEmail, $successRate) {
         return str_replace(
-            ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]'],
-            [$student['name'], $courseName, $examName, $student['mark'], $average, $teacherEmail],
+            ['[STUDENT_NAME]', '[COURSE_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]', '[CLASS_AVERAGE]', '[MY_MAIL]', '[SUCCESS_RATE]'],
+            [$student['name'], $courseName, $examName, $student['mark'], $average, $teacherEmail, $successRate],
             $message
         );
     }
@@ -184,6 +205,7 @@ class MarksController extends Controller
 
         $files = $request->file('students');
         $average = $this->getClassAverage($request->students);
+        $successRate = $this->getSuccessRate($request->students);
 
         $requiredVariables = ['[STUDENT_NAME]', '[EXAM_NAME]', '[STUDENT_MARK]'];
         $missingVariables = [];
@@ -221,7 +243,8 @@ class MarksController extends Controller
                 $request->course_name,
                 $request->exam_name,
                 $average,
-                $request->teacher_email
+                $request->teacher_email,
+                $successRate
             );
 
             $recipient = $toTeacher ? $request->teacher_email : $student['email'];
