@@ -193,6 +193,9 @@
                                         <i class="bi bi-upload"></i>
                                     </button>
                                 </form>
+                                <button id="btn-incognito" class="btn border">
+                                    <i class="bi bi-incognito"></i>
+                                </button>
                             </div>
                         </div>
                         @if (count($students) >= 5)
@@ -218,7 +221,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($students as $index => $student)
-                                    <tr>
+                                    <tr class="studentLine">
                                         <td class="ps-4">
                                             <input type="text" form="send-marks-form" name="students[{{ $index }}][name]" class="form-control border-0 bg-transparent fw-bold" value="{{ $student['name'] }}" placeholder="Nom">
                                         </td>
@@ -919,7 +922,24 @@
         chartBubble = new Chart(ctxBubble, chartConfigBubble);
         chartBar = new Chart(ctxBar, chartConfigBar);
     });
+    // --------------------
+    // Incognito mode
+    // --------------------
+    const incognitoBtn = document.getElementById('btn-incognito');
+    incognitoBtn.addEventListener("click", toogleIncognitoMode);
 
+    function toogleIncognitoMode() {
+        document.querySelectorAll(".studentLine").forEach(line => {
+            const nameInput = line.querySelector("input[name*='[name']");
+            const emailInput = line.querySelector("input[name*='[email']");
+            const attachmentInput = line.querySelector("input[type='file']");
+
+            nameInput.style.filter === "" ? nameInput.style.filter = "blur(9px)" : nameInput.style.filter = "";
+            emailInput.style.filter === "" ? emailInput.style.filter = "blur(9px)" : emailInput.style.filter = "";
+            attachmentInput.style.filter === "" ? attachmentInput.style.filter = "blur(9px)" : attachmentInput.style.filter = "";
+        })
+        incognitoBtn.classList.toggle("btn-secondary")
+    }
     
 </script>
 @endsection
