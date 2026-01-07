@@ -289,8 +289,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div style="height: 300px; position: relative;">
+                        <div class="w-75">
                             <canvas id="marksChart"></canvas>
                         </div>
                     </div>
@@ -460,7 +459,6 @@
                         clearInterval(timer);
                     }, { once: true });
                 } else {
-                    console.log(result)
                     displayErrors(result.errors);
                 }
             } catch (error) {
@@ -743,7 +741,6 @@
 
     const updateStudentCounter = () => {
         const allStudents = tableBody.querySelectorAll('tr:not([style*="display: none"]):not(.no-result):not(.empty)');
-        console.log(allStudents);
 
         studentCounter.innerText = allStudents.length;
 
@@ -788,6 +785,76 @@
 
     document.getElementById('tab-stats-btn').addEventListener('click', () => {
         updateStatistics();
+    });
+
+    // --------------------
+    // Marks Chart
+    // --------------------
+    const ctx = document.getElementById('marksChart');
+    const labels = ["1.0-1.9", "2.0-2.9", "3.0-3.9", "4.0-4.9", "5.0-5.9", "6.0"];
+
+    function colorize() {
+        return (ctx) => {
+                    if (!ctx.parsed) return '#f0f0f0';
+                    const value = ctx.parsed.y; 
+
+                    if (value < 2.0) return '#f5f5f5';
+                    if (value < 3.0) return '#eceff1';
+                    if (value < 4.0) return '#cfd8dc'; 
+                    if (value < 5.0) return '#90a4ae';  
+                    if (value < 6.0) return '#546e7a';
+                    return '#263238';
+                }
+    }
+
+    document.getElementById('tab-stats-btn').addEventListener('click', () => {
+        ctx.innerHTML = '';
+        const numbersOfStudentsEachRange = [];
+        labels.forEach((label) => {
+            const rangeStudent = Array.from(document.querySelectorAll('.mark-input')).filter(input => {
+                const mark = parseFloat(input.value);
+                if (label === "6.0") {
+                    return mark === 6.0;
+                } else {
+                    const [min, max] = label.split('-').map(parseFloat);
+                    return mark >= min && mark <= max;
+                }
+            }).length;
+            numbersOfStudentsEachRange.push(rangeStudent);
+        })
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Number of Students',
+                data: numbersOfStudentsEachRange,
+                backgroundColor: colorize(),
+                borderColor: 'transparent',
+            }]
+        }
+        const chartConfig = {
+            type: 'bar',
+            data: data,
+            options: {
+                indexAxis: 'y',
+                elements: {
+                    bar: {
+                        borderWidth: 2,
+                    },
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Marks Distribution',
+                    },
+                },
+            }
+        }
+
+        new Chart(ctx, chartConfig);
     });
 </script>
 @endsection
