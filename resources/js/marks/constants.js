@@ -32,3 +32,8 @@ export const VARIABLES = {
     PREFIX: "[",
     SUFFIX: "]"
 }
+
+// Pdf export constants
+export const PDF = {
+    BUTTON_DISABLE_DURATION: 4000 // milliseconds
+}

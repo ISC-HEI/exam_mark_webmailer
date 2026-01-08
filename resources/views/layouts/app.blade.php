@@ -125,7 +125,12 @@
   [data-bs-theme="dark"] .chart-wrapper {
     background: #303337;
   }
-
+  .is-loading {
+    opacity: 0.7;
+    cursor: wait !important;
+    pointer-events: auto !important;
+    animation: pulse-count 1.5s infinite ease-in-out;
+  }
 </style>
 <body>
     <div>
@@ -137,4 +142,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </html>

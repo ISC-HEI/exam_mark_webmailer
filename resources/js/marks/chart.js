@@ -1,5 +1,20 @@
-import { CHART } from './constants.js';
+import { CHART, PDF } from './constants.js';
 import { DOM } from './dom.js';
+
+// --------------------
+// Statistics load
+// --------------------
+DOM.btnStatsTab.addEventListener('click', () => {
+    if (DOM.btnSavePDF) {
+        DOM.btnSavePDF.disabled = true;
+        DOM.btnSavePDF.classList.add('is-loading');
+
+        setTimeout(() => {
+            DOM.btnSavePDF.disabled = false;
+            DOM.btnSavePDF.classList.remove('is-loading');
+        }, PDF.BUTTON_DISABLE_DURATION);
+    }
+});
 
 // --------------------
 // Marks Chart
@@ -110,3 +125,92 @@ DOM.btnStatsTab.addEventListener('click', () => {
     chartBubble = new Chart(DOM.ctxBubble, chartConfigBubble);
     chartBar = new Chart(DOM.ctxBar, chartConfigBar);
 });
+
+// --------------------
+// Statistics PDF Export
+// --------------------
+if (DOM.btnSavePDF) {
+    DOM.btnSavePDF.addEventListener('click', () => {
+        exportStatsToPDF();
+    });
+}
+
+async function exportStatsToPDF() {
+    const element = DOM.tabStats;
+    const dateStr = new Date().toLocaleDateString('en-EN', { 
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
+
+    const canvasBar = DOM.ctxBar;
+    const canvasBubble = DOM.ctxBubble;
+    if (!canvasBar || !canvasBubble) return;
+
+    const imgBarSrc = canvasBar.toDataURL("image/png");
+    const imgBubbleSrc = canvasBubble.toDataURL("image/png");
+
+    const clone = element.cloneNode(true);
+    
+    clone.style.setProperty('margin', '0', 'important');
+    clone.style.setProperty('padding', '10mm', 'important');
+    clone.style.width = "190mm";
+    clone.style.background = "white";
+
+    const pdfHeader = clone.querySelector('#pdf-header');
+    if (pdfHeader) pdfHeader.classList.remove('d-none');
+    const pdfDate = clone.querySelector('#pdf-date');
+    if (pdfDate) pdfDate.innerText = dateStr;
+    const examNameSpan = clone.querySelector('#spa-exam-name');
+    if (examNameSpan) examNameSpan.innerText = DOM.inputExam.value || "N/A";
+    const courseNameSpan = clone.querySelector('#spa-course-name');
+    if (courseNameSpan) courseNameSpan.innerText = DOM.inputCourse.value || "N/A";
+    const teacherEmailSpan = clone.querySelector('#spa-teacher-email');
+    if (teacherEmailSpan) teacherEmailSpan.innerText = document.getElementById('teacher_email').value || "N/A";
+    const btn = clone.querySelector('#btn-save-pdf');
+    if (btn) btn.remove();
+
+    const cloneCanvases = clone.querySelectorAll('canvas');
+    const images = [imgBarSrc, imgBubbleSrc];
+    cloneCanvases.forEach((canvas, index) => {
+        if (images[index]) {
+            const wrapper = document.createElement('div');
+            wrapper.style.marginBottom = "20px";
+            const img = document.createElement('img');
+            img.src = images[index];
+            img.style.width = "100%";
+            img.style.display = "block";
+            wrapper.appendChild(img);
+            canvas.replaceWith(wrapper);
+        }
+    });
+
+    const options = {
+        margin: 0,
+        filename: `Stats_${new Date().getTime()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true,
+            scrollY: 0,
+            scrollX: 0,
+            windowHeight: element.scrollHeight,
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: 'css' } 
+    };
+
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.top = '0';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '210mm';
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+
+    try {
+        await html2pdf().set(options).from(clone).save();
+    } catch (err) {
+        console.error("PDF error:", err);
+    } finally {
+        document.body.removeChild(tempContainer);
+    }
+}

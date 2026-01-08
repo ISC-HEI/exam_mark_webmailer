@@ -94,7 +94,7 @@
                             <input type="text" form="send-marks-form" name="exam_name" class="form-control bg-secondary text-white border-0" value="{{ old('exam_name') }}" required placeholder="Exam name">
                         </div>
                         <div>
-                            <input type="email" form="send-marks-form" name="teacher_email" class="form-control bg-secondary text-white border-0" value="{{ old('teacher_email') }}" required placeholder="Your email">
+                            <input type="email" form="send-marks-form" name="teacher_email" id="teacher_email" class="form-control bg-secondary text-white border-0" value="{{ old('teacher_email') }}" required placeholder="Your email">
                         </div>
                     </div>
 
@@ -265,8 +265,20 @@
                 </div>
 
                 <div class="tab-pane fade" id="view-stats" role="tabpanel">
+                    <div id="pdf-header" class="d-none">
+                        <div style="border-bottom: 2px solid #0d6efd; padding-bottom: 10px; margin-bottom: 20px;">
+                            <h2 style="color: #0d6efd; margin: 0;"><span id="spa-exam-name"></span> - Analysis</h2>
+                            <small><span id="spa-course-name"></span> - <span id="spa-teacher-email"></span></small>
+                            <p style="margin: 0; color: #666;">Document generate the : <span id="pdf-date"></span></p>
+                        </div>
+                    </div>
                     <div class="card border-0 shadow-sm p-4">
-                        <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Exam Analysis</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Exam Analysis</h5>
+                            <button id="btn-save-pdf" class="btn btn-primary fw-bold shadow">
+                                <i class="bi bi-save"></i>
+                            </button>
+                        </div>
                         
                         <div class="row g-4 mb-4">
                             <div class="col-md-3">

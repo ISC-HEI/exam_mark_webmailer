@@ -28,6 +28,7 @@ export const DOM = {
     btnIncognito: document.getElementById('btn-incognito'),
     btnThemeToggle: document.getElementById('theme-toggle'),
     btnRemoveStudents: document.querySelectorAll('.btn-remove-student'),
+    btnSavePDF: document.getElementById('btn-save-pdf'),
 
     // Confirmation modal
     modalConfirm: document.getElementById('confirmSendModal'),
@@ -55,4 +56,8 @@ export const DOM = {
     // Charts
     ctxBar: document.getElementById('marksChartBar'),
     ctxBubble: document.getElementById('marksChartBubble'),
+
+    // tabs
+    tabStats: document.getElementById('view-stats'),
+    tabStudents: document.getElementById('view-students'),
 }
