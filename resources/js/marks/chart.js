@@ -77,6 +77,14 @@ DOM.btnStatsTab.addEventListener('click', () => {
             plugins: {
                 title: { display: true, text: 'Marks Distribution bar' },
             },
+            scales: {
+                x: {
+                    min: 1,
+                    ticks: {
+                        stepSize: 1,
+                    }
+                },
+            },
             animation: {
                 x: {
                     from: 0,
@@ -111,6 +119,24 @@ DOM.btnStatsTab.addEventListener('click', () => {
                 title: { display: true, text: 'Marks Distribution bubble' },
                 tooltip: {
                     enabled: false
+                }
+            },
+            scales: {
+                y: {
+                    min: 1,
+                    max: 6.5,
+                    ticks: {
+                        stepSize: 1,
+
+                        callback: function(value) {
+                            if (value >= 1 && value <= 6) return value;
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        stepSize: 1,
+                    }
                 }
             },
             animation: {
