@@ -37,6 +37,10 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         if (DOM.btnSavePDF) DOM.btnSavePDF.click();
     }
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'f') && DOM.btnStudentsTab.classList.contains('active')) {
+        e.preventDefault();
+        DOM.btnFullScreen.click();
+    }
 });
 
 // ---------------
@@ -189,4 +193,53 @@ window.addEventListener('beforeunload', function (e) {
 
 export function authorizeReload() {
     isAuthorizeReload = true;
+}
+
+// --------------------
+// Full Screen Toggle
+// --------------------
+DOM.btnFullScreen.addEventListener("click", toogleFullScreen);
+window.addEventListener('load', () => {
+    const isFullScreen = sessionStorage.getItem('fullscreen') === '1';
+    if (isFullScreen) {
+        toogleFullScreen();
+    }
+});
+
+function toogleFullScreen() {
+    let isFullScreen = DOM.btnFullScreen.getAttribute("data-fullscreen") === "true";
+    console.log("Toggling full screen. Current state:", isFullScreen);
+    if (!isFullScreen) {
+        DOM.tabStudents.style.position = "absolute";
+        DOM.tabStudents.style.top = "0";
+        DOM.tabStudents.style.left = "0";
+        DOM.tabStudents.style.width = "95%";
+        DOM.tabStudents.style.height = "95%";
+        DOM.tabStudents.style.margin = "2.5%";
+        DOM.tabStudents.style.zIndex = "2";
+        DOM.tabStudents.style.overflow = "auto";
+        DOM.tabStudents.style.borderTopLeftRadius = "5px";
+
+        DOM.overlay.style.display = "block";
+
+        DOM.btnFullScreen.setAttribute("data-fullscreen", "true");
+        sessionStorage.setItem('fullscreen', '1');
+        DOM.btnFullScreen.innerHTML = `<i class="bi bi-fullscreen-exit"></i>`;
+    } else {
+        DOM.tabStudents.style.position = "initial";
+        DOM.tabStudents.style.top = "";
+        DOM.tabStudents.style.left = "";
+        DOM.tabStudents.style.width = "";
+        DOM.tabStudents.style.height = "";
+        DOM.tabStudents.style.margin = "";
+        DOM.tabStudents.style.zIndex = "";
+        DOM.tabStudents.style.overflow = "";
+        DOM.tabStudents.style.borderTopLeftRadius = "";
+
+        DOM.overlay.style.display = "none";
+
+        sessionStorage.removeItem('fullscreen');
+        DOM.btnFullScreen.setAttribute("data-fullscreen", "false");
+        DOM.btnFullScreen.innerHTML = `<i class="bi bi-fullscreen"></i>`;
+    }
 }

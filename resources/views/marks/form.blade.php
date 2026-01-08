@@ -41,7 +41,7 @@
         <p class="mt-2 fw-bold text-primary">Sending emails in progress...</p>
     </div>
 </div>
-
+<div id="overlay"></div>
 <div id="mainContainer" class="container-fluid p-4 min-vh-100">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -125,7 +125,7 @@
                     </div>
                     <div class="custom-file-upload w-100">
                         <input type="file" id="fileInput" form="send-marks-form" name="global_attachment[]" multiple />
-                        <label for="fileInput" class="d-flex flex-column align-items-center justify-content-center py-3">
+                        <label for="fileInput" class="d-flex flex-column align-items-center justify-content-center py-2">
                             <i class="bi bi-cloud-arrow-up mb-2"></i>
                             <span class="main-text">Click here</span>
                             <span class="sub-text">Add more global attachments</span>
@@ -153,7 +153,7 @@
                     <button type="button" id="send-test-email" class="btn btn-outline-light w-100 mb-2 py-2 fw-bold shadow-sm">
                         <i class="bi bi-envelope-check me-2"></i> Send a test email
                     </button>
-                    <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-3 fw-bold shadow">
+                    <button type="submit" form="send-marks-form" class="btn btn-primary w-100 py-2 fw-bold shadow">
                         <i class="bi bi-send-fill me-2"></i> Send marks
                     </button>
                 </div>
@@ -200,6 +200,9 @@
                                 </form>
                                 <button id="btn-incognito" class="btn border">
                                     <i class="bi bi-incognito"></i>
+                                </button>
+                                <button id="btn-full-screen" class="btn border" data-full-screen="false">
+                                    <i class="bi bi-fullscreen"></i>
                                 </button>
                             </div>
                         </div>

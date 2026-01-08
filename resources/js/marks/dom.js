@@ -10,6 +10,7 @@ export const DOM = {
     loadingOverlay: document.getElementById("loading-overlay"),
     errorContainer: document.querySelector('.alert-danger'),
     studentLines: document.querySelectorAll(".studentLine"),
+    overlay: document.getElementById('overlay'),
 
     // Main inputs
     inputCourse: document.querySelector('input[name="course_name"]'),
@@ -30,6 +31,7 @@ export const DOM = {
     btnRemoveStudents: document.querySelectorAll('.btn-remove-student'),
     btnSavePDF: document.getElementById('btn-save-pdf'),
     btnDeleteGlobalAttachments: document.querySelectorAll('.btn-delete-global-attachment'),
+    btnFullScreen: document.getElementById('btn-full-screen'),
 
     // Confirmation modal
     modalConfirm: document.getElementById('confirmSendModal'),

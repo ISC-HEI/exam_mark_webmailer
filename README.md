@@ -100,16 +100,17 @@ Here is a list of available variables
 ### Available Shortcuts
 Here is a list of available shortcuts
 
-| **Shortcut** |           **Action**           |
-|:------------:|:------------------------------:|
-| ALT + ENTER  | Send the marks                 |
-| ALT + A      | Add a student                  |
-| ALT + M      | Focus the message area         |
-| ALT + R      | Reset the message              |
-| ALT + S      | Toggle between the tabs        |
-| ALT + I      | Toggle incognito mode          |
-| ALT + T      | Toggle theme                   |
-| ALT + P      | Export the statistics as PDF   |
+| **Shortcut** |                    **Action**                  |
+|:------------:|:----------------------------------------------:|
+| ALT + ENTER  | Send the marks                                 |
+| ALT + A      | Add a student                                  |
+| ALT + M      | Focus the message area                         |
+| ALT + R      | Reset the message                              |
+| ALT + S      | Toggle between the tabs                        |
+| ALT + I      | Toggle incognito mode                          |
+| ALT + T      | Toggle theme                                   |
+| ALT + P      | Export the statistics as PDF                   |
+| ALT + F      | Toggle the full screen for students edition    |
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.
