@@ -198,10 +198,10 @@
                                         <i class="bi bi-upload"></i>
                                     </button>
                                 </form>
-                                <button id="btn-incognito" class="btn border">
+                                <button id="btn-incognito" class="btn border" title="Incognito mode">
                                     <i class="bi bi-incognito"></i>
                                 </button>
-                                <button id="btn-full-screen" class="btn border" data-full-screen="false">
+                                <button id="btn-full-screen" class="btn border" data-full-screen="false" title="Full screen">
                                     <i class="bi bi-fullscreen"></i>
                                 </button>
                             </div>
@@ -283,7 +283,7 @@
                     <div class="card border-0 shadow-sm p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Exam Analysis</h5>
-                            <button id="btn-save-pdf" class="btn btn-primary fw-bold shadow">
+                            <button id="btn-save-pdf" class="btn btn-primary fw-bold shadow" title="Save as PDF">
                                 <i class="bi bi-save"></i>
                             </button>
                         </div>

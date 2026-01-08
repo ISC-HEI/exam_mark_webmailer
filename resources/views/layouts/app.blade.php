@@ -142,6 +142,18 @@
     z-index: 1;
     display: none;
   }
+  table tr:focus-within {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    
+    transition: all 0.2s ease-in-out;
+  }
+
+  table tr:focus-within td {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: padding 0.2s ease-in-out;
+  }
 </style>
 <body>
     <div>

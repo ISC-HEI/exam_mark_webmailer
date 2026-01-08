@@ -165,6 +165,16 @@ function toogleIncognitoMode() {
 // ---------------
 window.addEventListener('load', () => {
     const scrollToBottom = sessionStorage.getItem('scrollToBottom');
+    const setFocusToLast = sessionStorage.getItem('setFocusToLast');
+
+    if (setFocusToLast === '1') {
+        const lastNameInput = DOM.tableBody.querySelector("tr:last-child input[name*='[name']");
+        if (lastNameInput) {
+            lastNameInput.focus();
+        }
+        sessionStorage.removeItem('setFocusToLast');
+    }
+
     if (scrollToBottom === '1') {
         if (DOM.studentLines.length > 10) {
             window.scrollTo(0, document.body.scrollHeight);
@@ -243,3 +253,16 @@ function toogleFullScreen() {
         DOM.btnFullScreen.innerHTML = `<i class="bi bi-fullscreen"></i>`;
     }
 }
+
+// --------------------
+// Create next line
+// --------------------
+const inputTable = DOM.tableBody.querySelectorAll("input");
+inputTable.forEach(input => {
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            DOM.btnAddStudent.click();
+            sessionStorage.setItem("setFocusToLast", "1");
+        }
+    });
+});
