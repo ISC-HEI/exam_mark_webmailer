@@ -16,3 +16,5 @@ Route::post('/marks/remove-student', [MarksController::class, 'removeStudent'])-
 Route::post('/marks/delete-global-attachment', [MarksController::class, 'deleteGlobalAttachments'])->name('marks.delete_global_attachment');
 
 Route::post('/marks/load-csv', [MarksController::class, 'loadCsv'])->name('marks.load_csv');
+
+Route::post('/marks/email-preview', [MarksController::class, 'emailPreview'])->name("email.preview");

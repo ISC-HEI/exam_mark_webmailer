@@ -48,7 +48,7 @@
             <h2 class="fw-bold mb-0">Marks Mail Sender</h2>
             <p class="text-muted small mb-0">Manage exams and notify students efficiently.</p>
         </div>
-        <button id="theme-toggle" style="width: 30px; height: 30px" class="btn btn-outline-secondary d-flex justify-content-center align-items-center border-0 rounded-circle p-2">
+        <button id="theme-toggle" style="width: 30px; height: 30px" title="Toggle theme" class="btn btn-outline-secondary d-flex justify-content-center align-items-center border-0 rounded-circle p-2">
             <i class="bi bi-sun-fill d-block-light d-none"></i>
             <i class="bi bi-moon-stars-fill d-block-dark"></i>
         </button>
@@ -102,7 +102,12 @@
 
                     <div class="flex-grow-1 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label text-secondary small fw-bold text-uppercase mb-0">Message Email</label>
+                            <label class="form-label text-secondary small fw-bold text-uppercase mb-0">
+                                Message Email
+                                <button class="btn btn-link btn-sm text-primary p-0" type="button" id="toggle-preview-message" title="Preview message">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </label>
                             <button class="btn btn-link btn-sm text-secondary text-decoration-none p-0" title="Reset to default message" type="button" id="reset-message-btn">
                                 <i class="bi bi-arrow-counterclockwise"></i> Reset
                             </button>

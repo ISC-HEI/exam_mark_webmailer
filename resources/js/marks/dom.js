@@ -32,6 +32,7 @@ export const DOM = {
     btnSavePDF: document.getElementById('btn-save-pdf'),
     btnDeleteGlobalAttachments: document.querySelectorAll('.btn-delete-global-attachment'),
     btnFullScreen: document.getElementById('btn-full-screen'),
+    btnTogglePreviewMessage: document.getElementById('toggle-preview-message'),
 
     // Confirmation modal
     modalConfirm: document.getElementById('confirmSendModal'),

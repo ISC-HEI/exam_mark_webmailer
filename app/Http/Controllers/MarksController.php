@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\StudentMarkMail;
 use App\Http\Requests\MarksRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MarksController extends Controller
 {
@@ -122,6 +123,32 @@ class MarksController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attachment deleted successfully'
+        ]);
+    }
+
+    public function emailPreview (Request $request) {
+        $courseName = $request->filled('course_name') ? $request->input('course_name') : 'Cours Test';
+        $examName = $request->filled('exam_name') ? $request->input('exam_name') : 'Examen Test';
+
+        $rawMessage = $request->input('message');
+        $message = Str::markdown($rawMessage);
+        
+        $previewContent = $this->replaceVariables(
+            $message,
+            (($request->students[0]['name'] ?? null) && ($request->students[0]['mark'] !== null)) 
+                ? $request->students[0] 
+                : ['name' => 'Jean Dupont', 'mark' => '5.5'],
+            $courseName,
+            $examName,
+            $this->getClassAverage($request->input('students', [])) ?? '0.0',
+            $request->input('teacher_email') ?? 'teacher@email.com',
+            $this->getSuccessRate($request->input('students', [])) ?? '0%',
+            $this->getMedian($request->input('students', [])) ?? '0.0'
+        );
+
+        return view('emails.studentMark', [
+            'courseName' => $courseName,
+            'contentMessage' => $previewContent
         ]);
     }
 

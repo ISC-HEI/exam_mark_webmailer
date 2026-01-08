@@ -166,7 +166,15 @@ function toogleIncognitoMode() {
 window.addEventListener('load', () => {
     const scrollToBottom = sessionStorage.getItem('scrollToBottom');
     const setFocusToLast = sessionStorage.getItem('setFocusToLast');
+    const isFullScreen = sessionStorage.getItem('fullscreen') === '1';
 
+    if (scrollToBottom === '1') {
+        if (DOM.studentLines.length > 10) {
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+        sessionStorage.removeItem('scrollToBottom');
+    }
+    
     if (setFocusToLast === '1') {
         const lastNameInput = DOM.tableBody.querySelector("tr:last-child input[name*='[name']");
         if (lastNameInput) {
@@ -175,11 +183,8 @@ window.addEventListener('load', () => {
         sessionStorage.removeItem('setFocusToLast');
     }
 
-    if (scrollToBottom === '1') {
-        if (DOM.studentLines.length > 10) {
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-        sessionStorage.removeItem('scrollToBottom');
+    if (isFullScreen) {
+        toogleFullScreen();
     }
 });
 
@@ -209,12 +214,6 @@ export function authorizeReload() {
 // Full Screen Toggle
 // --------------------
 DOM.btnFullScreen.addEventListener("click", toogleFullScreen);
-window.addEventListener('load', () => {
-    const isFullScreen = sessionStorage.getItem('fullscreen') === '1';
-    if (isFullScreen) {
-        toogleFullScreen();
-    }
-});
 
 function toogleFullScreen() {
     let isFullScreen = DOM.btnFullScreen.getAttribute("data-fullscreen") === "true";

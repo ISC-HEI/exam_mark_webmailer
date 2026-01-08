@@ -19,8 +19,9 @@
 </head>
 <style>
   * {
-      box-sizing: border-box;
-      transition: background-color 0.3s, color 0.3s;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+    scrollbar-color: #0d6efd #f1f1f1;
   }
   @keyframes pulse-count {
       0% { transform: scale(1); }
@@ -153,6 +154,9 @@
     padding-top: 20px;
     padding-bottom: 20px;
     transition: padding 0.2s ease-in-out;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #0d6efd;
   }
 </style>
 <body>

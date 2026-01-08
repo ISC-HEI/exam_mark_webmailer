@@ -142,3 +142,22 @@ DOM.fileInput.addEventListener('change', function(e) {
 DOM.btnResetMessage.addEventListener('click', () => {
     DOM.textareaMessage.value = DEFAULT_MESSAGE;
 });
+
+
+// ---------------
+// Toggle preview message button
+// ---------------
+DOM.btnTogglePreviewMessage.addEventListener('click', () => {
+    const form = DOM.form;
+    
+    form.action = "/marks/email-preview"; 
+    form.method = 'POST';
+    form.target = 'PreviewWindow';
+
+    window.open('', 'PreviewWindow', 'width=800,height=500,scrollbars=yes');
+    
+    form.submit();
+    
+    form.action = "{{ route('marks.send') }}";
+    form.target = '_self';
+});
