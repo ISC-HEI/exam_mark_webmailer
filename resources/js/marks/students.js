@@ -1,4 +1,5 @@
 import { DOM } from './dom.js';
+import { authorizeReload } from './utils.js';
 
 // --------------------
 // Add and Remove student
@@ -12,7 +13,7 @@ DOM.btnAddStudent.addEventListener('click', () => {
     sendMarksForm.action = '/marks/add-student';
     
     sessionStorage.setItem('scrollToBottom', '1');
-
+    authorizeReload();
     sendMarksForm.submit();
 });
 
@@ -26,7 +27,7 @@ DOM.btnRemoveStudents.forEach(btn => {
         DOM.inputRemoveIndex.value = index;
 
         sendMarksForm.action = '/marks/remove-student';
-
+        authorizeReload();
         sendMarksForm.submit();
     });
 });

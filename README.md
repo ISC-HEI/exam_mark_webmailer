@@ -106,6 +106,8 @@ Here is a list of available shortcuts
 | ALT + M      | Focus the message area |
 | ALT + R      | Reset the message      |
 | ALT + S      | Toggle between the tabs|
+| ALT + I      | Toggle incognito mode  |
+| ALT + T      | Toggle theme           |
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.

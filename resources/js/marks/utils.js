@@ -8,22 +8,30 @@ document.addEventListener('keydown', function(e) {
     if (e.altKey && e.key === 'Enter') {
         if (DOM.btnSend) DOM.btnSend.click();
     }
-    if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'a')) {
         e.preventDefault();
         const addBtn = DOM.btnAddStudent;
         if (addBtn) addBtn.click();
     }
-    if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'm')) {
         e.preventDefault();
         DOM.textareaMessage.focus();
     }
-    if (e.altKey && (e.key === 'r' || e.key === 'R')) {
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'r')) {
         e.preventDefault();
         DOM.btnResetMessage.click();
     }
-    if (e.altKey && (e.key === 's' || e.key === 'S')) {
+    if (e.altKey && (e.key.toLocaleLowerCase() === 's')) {
         e.preventDefault();
         DOM.btnStudentsTab.classList.contains('active') ? DOM.btnStatsTab.click() : DOM.btnStudentsTab.click(); 
+    }
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'i')) {
+        e.preventDefault();
+        DOM.btnIncognito.click();
+    }
+    if (e.altKey && (e.key.toLocaleLowerCase() === 't')) {
+        e.preventDefault();
+        DOM.btnThemeToggle.click();
     }
 });
 
@@ -156,3 +164,25 @@ window.addEventListener('load', () => {
         sessionStorage.removeItem('scrollToBottom');
     }
 });
+
+// --------------------
+// Exit page security
+// --------------------
+let isAuthorizeReload = false;
+
+window.addEventListener('beforeunload', function (e) {
+
+    if (isAuthorizeReload) {
+        isAuthorizeReload = false;
+        return;
+    }
+
+    if (DOM.studentLines && DOM.studentLines.length > 0) {
+        e.preventDefault();
+        return ""; 
+    }
+});
+
+export function authorizeReload() {
+    isAuthorizeReload = true;
+}

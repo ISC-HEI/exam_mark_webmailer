@@ -1,5 +1,6 @@
 import { DOM } from './dom.js';
 import { TIMER_BEFORE_SEND, DEFAULT_MESSAGE } from './constants.js'
+import { authorizeReload } from './utils.js';
 
 // --------------------
 // Confirm modal and Backend Check
@@ -27,6 +28,7 @@ sendMarksBtn.addEventListener('click', async (e) => {
 
     try {
         const formData = new FormData(sendMarksForm);
+        authorizeReload();
         const response = await fetch('/marks/check-validity', {
             method: 'POST',
             headers: {
@@ -99,6 +101,7 @@ finalConfirmBtn.addEventListener('click', () => {
     
     formActionInput.value = 'send';
     sendMarksForm.action = '/marks/send';
+    authorizeReload();
     sendMarksForm.submit();
 });
 
@@ -119,6 +122,7 @@ DOM.btnSendTestEmail.addEventListener("click", () => {
     loadingOverlay.classList.add("d-flex");
 
     sendMarksForm.action = '/marks/send-test';
+    authorizeReload();
     sendMarksForm.submit();
 });
 
