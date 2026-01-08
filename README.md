@@ -49,8 +49,7 @@ cp .env.example .env
 
 Create the docker image and start
 ```docker
-docker build -t exam-mark-webmailer:1 .
-docker run -p 8000:8000 exam-mark-webmailer:1
+docker compose up -d --build
 ```
 
 ### Configuration
@@ -71,20 +70,18 @@ MAIL_FROM_NAME="${APP_NAME}"
 ## Usage
 You can start the web page
 ```bash
-php artisan serve
+php artisan serve & npm run dev
 # Or via docker
-docker run -p 8000:8000 exam-mark-webmailer:1
+docker compose up -d --build
 ```
-
+The website is available [here](http:127.0.0.1:8000).
 ### Steps to send marks:
 
-1. Fill in the Course Name and Exam Name.
+1. Fill in the Course Name, Exam Name and your email.
 2. Add student details manually or load from a CSV file.
 3. Customize the email message using the available variables
 > Tip : You can type **[** to get the variables 
 4. Click Send Emails.
-
-*Optional: use Reset Message to restore the default template.*
 
 ### Available Variables
 Here is a list of available variables
