@@ -1,21 +1,21 @@
-<div style="background-color:#f2f4f6; padding:40px 0; font-family: 'Segoe UI', Arial, sans-serif;">
+<div style="background-color:#f9fafb; padding:50px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background-color:#ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
         <tr>
-            <td style="background-color:#0d6efd; text-align:center; padding:30px;">
-                <h1 style="margin:0; color:#ffffff; font-size:24px; font-weight:600;">{{ $courseName }}</h1>
-            </td>
-        </tr>
+            <td width="4" style="background-color: #0d6efd;"></td>
+            
+            <td style="padding: 40px;">
+                <h2 style="margin: 0 0 20px 0; color: #0d6efd; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {{ $courseName }}
+                </h2>
+                
+                <div style="color: #374151; font-size: 16px; line-height: 1.8;">
+                    {!! $contentMessage !!}
+                </div>
 
-        <tr>
-            <td style="padding:30px; color:#495057; font-size:16px; line-height:1.6; text-align:center;">
-                {!! $contentMessage !!}
-            </td>
-        </tr>
-
-        <tr>
-            <td style="background-color:#f8f9fa; text-align:center; padding:20px; font-size:12px; color:#6c757d;">
-                Ceci est un email automatique, merci de ne pas répondre.
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px #e5e7eb solid; color: #9ca3af; font-size: 12px;">
+                    Ce message a été généré automatiquement, merci de ne pas répondre.
+                </div>
             </td>
         </tr>
     </table>

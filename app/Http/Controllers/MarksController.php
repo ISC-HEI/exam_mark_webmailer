@@ -103,7 +103,7 @@ class MarksController extends Controller
             ->withInput($request->except('students'));
     }
 
-        public function deleteGlobalAttachments(Request $request) {
+    public function deleteGlobalAttachments(Request $request) {
         $fileName = $request->input('file_name');
 
         $globalFiles = session('global_temp_files', []);
@@ -259,7 +259,7 @@ class MarksController extends Controller
         }
         if (!empty($missingVariables)) {
             return back()->withErrors([
-                'message' => 'Le message doit contenir les variables suivantes : ' . implode(', ', $missingVariables)
+                'message' => 'The message must contain the following variables: ' . implode(', ', $missingVariables)
             ])->withInput();
         }
 
