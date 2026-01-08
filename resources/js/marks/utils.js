@@ -33,6 +33,10 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         DOM.btnThemeToggle.click();
     }
+    if (e.altKey && (e.key.toLocaleLowerCase() === 'p') && DOM.btnStatsTab.classList.contains('active')) {
+        e.preventDefault();
+        if (DOM.btnSavePDF) DOM.btnSavePDF.click();
+    }
 });
 
 // ---------------

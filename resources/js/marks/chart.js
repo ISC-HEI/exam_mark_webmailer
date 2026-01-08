@@ -159,29 +159,52 @@ async function exportStatsToPDF() {
     if (pdfHeader) pdfHeader.classList.remove('d-none');
     const pdfDate = clone.querySelector('#pdf-date');
     if (pdfDate) pdfDate.innerText = dateStr;
-    const examNameSpan = clone.querySelector('#spa-exam-name');
-    if (examNameSpan) examNameSpan.innerText = DOM.inputExam.value || "N/A";
-    const courseNameSpan = clone.querySelector('#spa-course-name');
-    if (courseNameSpan) courseNameSpan.innerText = DOM.inputCourse.value || "N/A";
-    const teacherEmailSpan = clone.querySelector('#spa-teacher-email');
-    if (teacherEmailSpan) teacherEmailSpan.innerText = document.getElementById('teacher_email').value || "N/A";
+    
+    const setInnerText = (id, val) => {
+        const el = clone.querySelector(id);
+        if (el) el.innerText = val || "N/A";
+    };
+    setInnerText('#spa-exam-name', DOM.inputExam?.value);
+    setInnerText('#spa-course-name', DOM.inputCourse?.value);
+    setInnerText('#spa-teacher-email', document.getElementById('teacher_email')?.value);
+
     const btn = clone.querySelector('#btn-save-pdf');
     if (btn) btn.remove();
 
     const cloneCanvases = clone.querySelectorAll('canvas');
-    const images = [imgBarSrc, imgBubbleSrc];
-    cloneCanvases.forEach((canvas, index) => {
-        if (images[index]) {
-            const wrapper = document.createElement('div');
-            wrapper.style.marginBottom = "20px";
-            const img = document.createElement('img');
-            img.src = images[index];
-            img.style.width = "100%";
-            img.style.display = "block";
-            wrapper.appendChild(img);
-            canvas.replaceWith(wrapper);
-        }
+    const imagesSrc = [imgBarSrc, imgBubbleSrc];
+    
+    const imagePromises = Array.from(cloneCanvases).map((canvas, index) => {
+        return new Promise((resolve) => {
+            if (imagesSrc[index]) {
+                const wrapper = document.createElement('div');
+                wrapper.style.marginBottom = "20px";
+
+                const img = document.createElement('img');
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); 
+                img.src = imagesSrc[index];
+                img.style.width = "100%";
+                img.style.display = "block";
+                
+                wrapper.appendChild(img);
+                canvas.replaceWith(wrapper);
+            } else {
+                resolve();
+            }
+        });
     });
+
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.top = '0';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '210mm';
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+
+    await Promise.all(imagePromises);
+    await new Promise(r => setTimeout(r, 150));
 
     const options = {
         margin: 0,
@@ -195,22 +218,16 @@ async function exportStatsToPDF() {
             windowHeight: element.scrollHeight,
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: 'css' } 
+        pagebreak: { mode: ['css', 'legacy'] } 
     };
-
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.width = '210mm';
-    tempContainer.appendChild(clone);
-    document.body.appendChild(tempContainer);
 
     try {
         await html2pdf().set(options).from(clone).save();
     } catch (err) {
         console.error("PDF error:", err);
     } finally {
-        document.body.removeChild(tempContainer);
+        if (tempContainer.parentNode) {
+            document.body.removeChild(tempContainer);
+        }
     }
 }
