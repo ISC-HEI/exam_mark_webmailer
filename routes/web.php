@@ -13,4 +13,6 @@ Route::post('/marks/send-test', [MarksController::class, 'sendTestEmail'])->name
 Route::post('/marks/add-student', [MarksController::class, 'addStudent'])->name('marks.add_student');
 Route::post('/marks/remove-student', [MarksController::class, 'removeStudent'])->name('marks.remove_student');
 
+Route::post('/marks/delete-global-attachment', [MarksController::class, 'deleteGlobalAttachments'])->name('marks.delete_global_attachment');
+
 Route::post('/marks/load-csv', [MarksController::class, 'loadCsv'])->name('marks.load_csv');

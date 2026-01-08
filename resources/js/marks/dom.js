@@ -29,6 +29,7 @@ export const DOM = {
     btnThemeToggle: document.getElementById('theme-toggle'),
     btnRemoveStudents: document.querySelectorAll('.btn-remove-student'),
     btnSavePDF: document.getElementById('btn-save-pdf'),
+    btnDeleteGlobalAttachments: document.querySelectorAll('.btn-delete-global-attachment'),
 
     // Confirmation modal
     modalConfirm: document.getElementById('confirmSendModal'),

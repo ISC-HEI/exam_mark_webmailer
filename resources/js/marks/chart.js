@@ -184,7 +184,7 @@ async function exportStatsToPDF() {
                 img.onload = () => resolve();
                 img.onerror = () => resolve(); 
                 img.src = imagesSrc[index];
-                img.style.width = "100%";
+                img.style.width = "120%";
                 img.style.display = "block";
                 
                 wrapper.appendChild(img);
@@ -208,7 +208,7 @@ async function exportStatsToPDF() {
 
     const options = {
         margin: 0,
-        filename: `Stats_${new Date().getTime()}.pdf`,
+        filename: `${DOM.inputExam?.value || "unknownExam"}_stats_${new Date().getTime()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
             scale: 2, 

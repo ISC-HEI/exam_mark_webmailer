@@ -98,3 +98,41 @@ const updateStudentCounter = () => {
     }
 };
 updateStudentCounter();
+
+// --------------------
+// Remove a global attachment
+// --------------------
+const btnDeleteGlobalAttachments = DOM.btnDeleteGlobalAttachments;
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+btnDeleteGlobalAttachments.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const fileName = this.getAttribute('data-file-name');
+        const container = this.parentElement;
+
+        fetch('/marks/delete-global-attachment', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ file_name: fileName })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur serveur');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                container.remove();
+            } else {
+                alert('Erreur : ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the attachment.');
+        });
+    });
+});

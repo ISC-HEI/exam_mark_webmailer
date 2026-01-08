@@ -103,6 +103,28 @@ class MarksController extends Controller
             ->withInput($request->except('students'));
     }
 
+        public function deleteGlobalAttachments(Request $request) {
+        $fileName = $request->input('file_name');
+
+        $globalFiles = session('global_temp_files', []);
+        $updatedFiles = array_filter($globalFiles, function ($file) use ($fileName) {
+            return $file['name'] !== $fileName;
+        });
+
+        foreach ($globalFiles as $file) {
+            if ($file['name'] === $fileName && Storage::disk('public')->exists($file['path'])) {
+                Storage::disk('public')->delete($file['path']);
+            }
+        }
+
+        session(['global_temp_files' => $updatedFiles]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attachment deleted successfully'
+        ]);
+    }
+
     // --------- Helper Functions ---------
 
     private function getClassAverage($students) {

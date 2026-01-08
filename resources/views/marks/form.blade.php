@@ -136,8 +136,13 @@
                             <div class="mt-2 px-3">
                                 <p class="small text-white-50 mb-1">Files already uploaded :</p>
                                 @foreach(session('global_temp_files') as $file)
-                                    <div class="badge bg-success mb-1 d-flex text-start align-items-center text-truncate">
-                                        <i class="bi bi-file-earmark-check me-1"></i> {{ $file['name'] }}
+                                    <div class="badge bg-success mb-1 d-flex text-start align-items-center text-truncate justify-content-between">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <i class="bi bi-file-earmark-check"></i> {{ $file['name'] }}
+                                        </div>
+                                        <button class="btn btn-sm text-white-50 ms-3 p-1 btn-delete-global-attachment" data-file-name="{{ $file['name'] }}" type="button" title="Remove this file">
+                                            <i class="bi bi-x ms-auto me-1"></i>
+                                        </button>
                                     </div>
                                 @endforeach
                             </div>
