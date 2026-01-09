@@ -21,6 +21,7 @@
     - [Steps to send marks](#steps-to-send-marks)
     - [Available Variables](#available-variables)
     - [Available Shortcuts](#available-shortcuts)
+- [Preview](#preview)
 - [License](#license)
 
 ## Features
@@ -79,7 +80,8 @@ The website is available [here](http:127.0.0.1:8000).
 ### Steps to send marks:
 
 1. Fill in the Course Name, Exam Name and your email.
-2. Add student details manually or load from a CSV file.
+2. Add student details manually or load from a CSV file.  
+    *The format for importing is : `name;email;mark`*
 3. Customize the email message using the available variables
 > Tip : You can type **[** to get the variables 
 4. Click Send Emails.
@@ -95,7 +97,7 @@ Here is a list of available variables
 | [CLASS_AVERAGE] | The class average            |
 | [MEDIAN]        | The median of the exam       |
 | [SUCCESS_RATE]  | The success rate of the exam |
-| [MY_EMAIL]      | Your email (teacher)         |
+| [MY_MAIL]      | Your email (teacher)         |
 
 ### Available Shortcuts
 Here is a list of available shortcuts
@@ -112,6 +114,16 @@ Here is a list of available shortcuts
 | ALT + P      | Export the statistics as PDF                   |
 | ALT + F      | Toggle the full screen for students edition    |
 | ALT + V      | Show the preview of the message                |
+
+## Preview
+1. Students page :  
+![Students page](/img/students_page.png)
+2. Statistics page :
+![Statistics page](/img/statistics_page.png)
+3. Send confirmation
+![Send confirmaion](/img/send_confirmation.png)
+4. Dark mode
+![Dark mode](/img/dark_mode.png)
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.
