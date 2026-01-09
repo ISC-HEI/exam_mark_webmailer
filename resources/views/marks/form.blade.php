@@ -168,12 +168,12 @@
         <div class="col-lg-8 col-xl-9">
             <ul class="nav nav-pills bg-white-prefer p-2 rounded-top border shadow-sm mb-0" style="width: fit-content" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="tab-students-btn" data-bs-toggle="pill" data-bs-target="#view-students" type="button" role="tab">
+                    <button class="nav-link btn-tabs active" id="tab-students-btn" data-bs-toggle="pill" data-bs-target="#view-students" type="button" role="tab">
                         <i class="bi bi-people me-2"></i>Students
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="tab-stats-btn" data-bs-toggle="pill" data-bs-target="#view-stats" type="button" role="tab">
+                    <button class="nav-link btn-tabs" id="tab-stats-btn" data-bs-toggle="pill" data-bs-target="#view-stats" type="button" role="tab">
                         <i class="bi bi-graph-up me-2"></i>Statistics
                     </button>
                 </li>
@@ -203,10 +203,10 @@
                                         <i class="bi bi-upload"></i>
                                     </button>
                                 </form>
-                                <button id="btn-incognito" class="btn border" title="Incognito mode">
+                                <button id="btn-incognito" class="btn btn-outline-secondary border" title="Incognito mode">
                                     <i class="bi bi-incognito"></i>
                                 </button>
-                                <button id="btn-full-screen" class="btn border" data-full-screen="false" title="Full screen">
+                                <button id="btn-full-screen" class="btn btn-outline-secondary border" data-full-screen="false" title="Full screen">
                                     <i class="bi bi-fullscreen"></i>
                                 </button>
                             </div>

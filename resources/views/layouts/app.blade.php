@@ -158,6 +158,15 @@
   ::-webkit-scrollbar-thumb {
     background: #0d6efd;
   }
+  .btn-tabs {
+    transition: all 0.08s
+  }
+  .btn-tabs:hover:not(.active) {
+    font-weight: 800
+  }
+  #add-student-btn:hover {
+    background-color: #0000000a
+  }
 </style>
 <body>
     <div>
