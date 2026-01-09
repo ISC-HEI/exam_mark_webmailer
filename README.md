@@ -1,129 +1,156 @@
 <div align="center">
 
-# Exam mark mailer
+# Exam Mark Mailer
 
 ![Language](https://img.shields.io/badge/language-php-red)
 ![Last Commit](https://img.shields.io/github/last-commit/ISC-HEI/exam_mark_webmailer)
-![License Apache](https://img.shields.io/badge/License-Apache-red)
-![Made with expo](https://img.shields.io/badge/made_with-Laravel-white?logo=laravel)
+![License](https://img.shields.io/badge/License-Apache_2.0-blue)
+![Laravel](https://img.shields.io/badge/Made_with-Laravel-red?logo=laravel)
 ![Numbers of issues](https://img.shields.io/github/issues/ISC-HEI/exam_mark_webmailer)
 ![Release version](https://img.shields.io/github/v/release/ISC-HEI/exam_mark_webmailer)
 ![Release date](https://img.shields.io/github/release-date/ISC-HEI/exam_mark_webmailer)
 
-**Exam Mark Mailer** is a simple and user-friendly web interface for sending exam marks to students via email. It allows teachers to enter marks manually or import them from CSV, and send personalized emails to each student.
+**A simple, user-friendly web interface for sending exam marks to students via email.** It allows teachers to enter marks manually or import them from CSV, and send personalized emails to each student.
+
+[Contribute](https://github.com/ISC-HEI/exam_mark_webmailer/pulls) • [Report Bug](https://github.com/ISC-HEI/exam_mark_webmailer/issues) • [Request Feature](https://github.com/ISC-HEI/exam_mark_webmailer/issues)
+
 </div>
+
+---
+
+![Main Interface](/img/students_page.png)
 
 ## Table Of Contents
 - [Features](#features)
 - [Installation](#installation)
-    - [Configuration](#configuration)
+    - [Docker (Recommended)](#option-a-docker-recommended)
+    - [Local Setup](#option-b-local-setup)
+- [Configuration](#configuration)
 - [Usage](#usage)
-    - [Steps to send marks](#steps-to-send-marks)
-    - [Available Variables](#available-variables)
-    - [Available Shortcuts](#available-shortcuts)
-- [Preview](#preview)
+    - [Importing Data](#importing-data-csv)
+    - [Variables & Shortcuts](#available-variables)
+- [Screenshots](#screenshots)
 - [License](#license)
 
 ## Features
-- Add or remove students dynamically.
-- Load students and marks from a CSV file.
-- Customize the email message with many variables.
-- Reset message to default template.
-- Send personalized emails to multiple students at once.
-- Supports Markdown formatting.
-- Many shortcuts for fast editing.
-- search bar from 5 students.
-- Page for the statistics of the exam.
-- Export the statistics page as PDF.
+* **Dynamic Management:** Add or remove students dynamically.
+* **Bulk Import:** Load students and marks via CSV file.
+* **Templating:** Customize emails with dynamic variables (e.g., `[STUDENT_MARK]`) and Markdown support.
+* **Shortcuts:** Keyboard shortcuts for power users for fast editing.
+* **Statistics:** View exam stats (Median, Average, Success Rate) and export as PDF.
+* **Search:** Smart search bar activates automatically when there are >5 students.
+* **Dark Mode:** Fully supported dark theme.
 
 ## Installation
-Clone the git directory
-```bash
-git clone https://github.com/ISC-HEI/exam_mark_webmailer.git
-cd exam_mark_webmailer
-```
-Copy .env.example to .env and configure your environment variables:
-```bash
-cp .env.example .env
-# php artisan key:generate
-```
-> You can run `php artisan key:generate` if you want to add some functions. If you just want to use the program as is, a key is provided in the `.env.example` file.
 
-Create the docker image and start
-```docker
-docker compose up -d --build
-```
+### Option A: Docker (Recommended)
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/ISC-HEI/exam_mark_webmailer.git
+    cd exam_mark_webmailer
+    ```
+2.  **Environment Setup**
+    Copy the example environment file and configure it:
+    ```bash
+    cp .env.example .env
+    ```
+    *See [Configuration](#configuration) below for mail settings.*
 
-### Configuration
-You need to configure your mail settings in the `.env` file to enable sending emails. Example configuration using Gmail SMTP:
+3.  **Build and Run**
+    ```bash
+    docker compose up -d --build
+    docker compose exec app php artisan key:generate # Optional
+    ```
+    The website will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
+### Option B: Local Setup
+**Prerequisites:** PHP 8.1+, Composer, Node.js.
+
+1.  **Install Dependencies**
+    ```bash
+    composer install
+    npm install && npm run dev
+    ```
+2.  **Setup**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate # Optional
+    ```
+3.  **Run**
+    ```bash
+    php artisan serve
+    ```
+
+## Configuration
+You need to configure your mail settings in the `.env` file to enable sending emails.
+
+**Example (Gmail SMTP):**
 ```env
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=test@gmail.com
-MAIL_PASSWORD="aaaa bbbb cccc dddd"
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD="your-app-password"
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=test@gmail.com
+MAIL_FROM_ADDRESS=your-email@gmail.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
-> Note: For Gmail, you may need to create an App Password or enable “Less secure app access”.
+> **Note:** For Gmail, you must use an **App Password** if 2FA is enabled.
 
 ## Usage
-You can start the web page
-```bash
-php artisan serve & npm run dev
-# Or via docker
-docker compose up -d --build
-```
-The website is available [here](http:127.0.0.1:8000).
-### Steps to send marks:
 
-1. Fill in the Course Name, Exam Name and your email.
-2. Add student details manually or load from a CSV file.  
-    *The format for importing is : `name;email;mark`*
-3. Customize the email message using the available variables
-> Tip : You can type **[** to get the variables 
-4. Click Send Emails.
+### Steps to send marks
+1.  Fill in the **Course Name**, **Exam Name**, and your **Email**.
+2.  Add student details manually or [Import from CSV](#importing-data-csv).
+3.  Customize the email message.
+    > Tip: Type **[** in the message box to see available variables.
+4.  Click **Send Emails**.
+
+### Importing Data (CSV)
+To import students, your CSV file must use **semicolons (;)** as delimiters.  
+**Format:** `name;email;mark`
+
+```csv
+John Doe;john@example.com;5.5
+Jane Smith;jane@example.com;4.0
+```
 
 ### Available Variables
-Here is a list of available variables
-|   **Variable**  |        **Description**       |
-|:---------------:|:----------------------------:|
-| [STUDENT_NAME]  | The name of the student      |
-| [STUDENT_MARK]  | The mark of the student      |
-| [COURSE_NAME]   | The name of the course       |
-| [EXAM_NAME]     | The name of the exam         |
-| [CLASS_AVERAGE] | The class average            |
-| [MEDIAN]        | The median of the exam       |
-| [SUCCESS_RATE]  | The success rate of the exam |
-| [MY_MAIL]      | Your email (teacher)         |
+| Variable | Description |
+| :--- | :--- |
+| `[STUDENT_NAME]` | The name of the student |
+| `[STUDENT_MARK]` | The mark of the student |
+| `[COURSE_NAME]` | The name of the course |
+| `[EXAM_NAME]` | The name of the exam |
+| `[CLASS_AVERAGE]` | The class average |
+| `[MEDIAN]` | The median of the exam |
+| `[SUCCESS_RATE]` | The success rate of the exam |
+| `[MY_MAIL]` | Your email (teacher) |
 
 ### Available Shortcuts
-Here is a list of available shortcuts
+| Shortcut | Action |
+| :---: | :--- |
+| `ALT` + `ENTER` | Send the marks |
+| `ALT` + `A` | Add a student |
+| `ALT` + `M` | Focus the message area |
+| `ALT` + `R` | Reset the message |
+| `ALT` + `S` | Toggle between tabs |
+| `ALT` + `I` | Toggle incognito mode |
+| `ALT` + `T` | Toggle theme (Dark/Light) |
+| `ALT` + `P` | Export statistics as PDF |
+| `ALT` + `F` | Toggle full screen (Student edition) |
+| `ALT` + `V` | Show message preview |
 
-| **Shortcut** |                    **Action**                  |
-|:------------:|:----------------------------------------------:|
-| ALT + ENTER  | Send the marks                                 |
-| ALT + A      | Add a student                                  |
-| ALT + M      | Focus the message area                         |
-| ALT + R      | Reset the message                              |
-| ALT + S      | Toggle between the tabs                        |
-| ALT + I      | Toggle incognito mode                          |
-| ALT + T      | Toggle theme                                   |
-| ALT + P      | Export the statistics as PDF                   |
-| ALT + F      | Toggle the full screen for students edition    |
-| ALT + V      | Show the preview of the message                |
+## Screenshots
 
-## Preview
-1. Students page :  
-![Students page](/img/students_page.png)
-2. Statistics page :
+**Statistics Page**
 ![Statistics page](/img/statistics_page.png)
-3. Send confirmation
-![Send confirmaion](/img/send_confirmation.png)
-4. Dark mode
+
+**Send Confirmation**
+![Send confirmation](/img/send_confirmation.png)
+
+**Dark Mode**
 ![Dark mode](/img/dark_mode.png)
 
 ## License
-The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
