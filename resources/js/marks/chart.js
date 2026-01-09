@@ -48,8 +48,11 @@ DOM.btnStatsTab.addEventListener('click', () => {
     // Bar chart
     const numbersOfStudentsEachRange = [];
     labelsBar.forEach((label) => {
+        console.log(label)
         const rangeStudent = Array.from(DOM.inputMarks).filter(input => {
+            console.log(input.value)
             const mark = parseFloat(input.value);
+            console.log(mark)
             if (label === "6.0") {
                 return mark === 6.0;
             } else {
@@ -57,8 +60,10 @@ DOM.btnStatsTab.addEventListener('click', () => {
                 return mark >= min && mark <= max;
             }
         }).length;
+        console.log(rangeStudent)
         numbersOfStudentsEachRange.push(rangeStudent);
     })
+    console.log(numbersOfStudentsEachRange)
     const dataBar = {
         labels: labelsBar,
         datasets: [{
@@ -79,7 +84,7 @@ DOM.btnStatsTab.addEventListener('click', () => {
             },
             scales: {
                 x: {
-                    min: 1,
+                    min: 0,
                     ticks: {
                         stepSize: 1,
                     }
