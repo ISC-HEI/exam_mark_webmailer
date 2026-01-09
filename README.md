@@ -38,7 +38,7 @@
 * **Templating:** Customize emails with dynamic variables (e.g., `[STUDENT_MARK]`) and Markdown support.
 * **Shortcuts:** Keyboard shortcuts for power users for fast editing.
 * **Statistics:** View exam stats (Median, Average, Success Rate) and export as PDF.
-* **Search:** Smart search bar activates automatically when there are >5 students.
+* **Search:** Smart search bar activates automatically when there are >5 students. It also support regex expression (ex. `^c.*@gmail\.com$`).
 * **Dark Mode:** Fully supported dark theme.
 
 ## Installation

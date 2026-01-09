@@ -43,6 +43,14 @@ const originalTotalStudentsText = totalStudents.innerText;
 if (searchInput) {
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
+        let isRegex = true;
+        let regex;
+
+        try {
+            regex = new RegExp(searchTerm, 'i');
+        } catch (e) {
+            isRegex = false;
+        }
 
         if (searchTerm !== '') {
             totalStudents.innerText = `Filtered Students`;
@@ -58,7 +66,13 @@ if (searchInput) {
             const email = row.querySelector('input[name*="[email]"]').value.toLowerCase();
             const mark = row.querySelector('input[name*="[mark]"]').value.toLowerCase();
 
-            if (name.includes(searchTerm) || email.includes(searchTerm) || mark.includes(searchTerm)) {
+            const matchFound = isRegex 
+                ? (regex.test(name) || regex.test(email) || regex.test(mark))
+                : (name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                   email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                   mark.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            if (matchFound) {
                 row.style.display = '';
                 hasVisibleRow = true;
             } else {
