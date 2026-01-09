@@ -111,6 +111,7 @@ Here is a list of available shortcuts
 | ALT + T      | Toggle theme                                   |
 | ALT + P      | Export the statistics as PDF                   |
 | ALT + F      | Toggle the full screen for students edition    |
+| ALT + V      | Show the preview of the message                |
 
 ## License
 The current License is Apache version 2.0, you can see it in the [LICENSE](LICENSE) file.

@@ -41,6 +41,10 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         DOM.btnFullScreen.click();
     }
+    if (e.altKey && (e.key.toLocaleLowerCase() === "v")) {
+        e.preventDefault();
+        DOM.btnTogglePreviewMessage.click()
+    }
 });
 
 // ---------------
